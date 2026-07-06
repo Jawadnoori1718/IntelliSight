@@ -104,7 +104,8 @@ See the full plan and progress in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
 - [x] **Phase 1** — Foundation & Repo Setup
 - [x] **Phase 2** — Backend Skeleton (FastAPI + `/health`)
 - [x] **Phase 3** — Frontend Shell (React + glassmorphism UI)
-- [ ] Phases 4–20 — coming next
+- [x] **Phase 4** — Live Camera Feed (browser webcam)
+- [ ] Phases 5–20 — coming next
 
 **Run the frontend:** `cd frontend`, `npm install`, `npm run dev`, then open http://localhost:5173 to see the interface.
 **Run the backend:** see **[backend/README.md](backend/README.md)** (`cd backend`, create the venv, `./run.sh`, then open http://127.0.0.1:8000/health).

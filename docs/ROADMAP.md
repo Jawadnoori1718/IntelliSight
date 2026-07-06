@@ -20,7 +20,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 
 ## Seeing
 
-- [ ] **Phase 4 — Live Camera Feed**
+- [x] **Phase 4 — Live Camera Feed**
   Browser webcam streaming live inside the app.
 
 - [ ] **Phase 5 — Object Detection Engine**
