@@ -1,11 +1,11 @@
 import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react'
+import { useDetectionStream } from '../hooks/useDetectionStream'
 
 /**
  * Shared IntelliSight app state.
  *
- * For now it owns the webcam: the <video> ref, the camera status and any error,
- * plus start/stop controls. Later phases (detection, stats, scene, memory…) will
- * extend this same context.
+ * Owns the webcam (video ref, status, start/stop) and the live object
+ * detections streamed from the backend. Later phases extend this context.
  */
 const AppContext = createContext(null)
 
@@ -25,6 +25,8 @@ function describeCameraError(err) {
   }
 }
 
+const EMPTY_META = { connected: false, fps: 0, latencyMs: 0 }
+
 export function AppProvider({ children }) {
   const videoRef = useRef(null)
   const streamRef = useRef(null)
@@ -32,6 +34,10 @@ export function AppProvider({ children }) {
   // idle | starting | live | error
   const [cameraStatus, setCameraStatus] = useState('idle')
   const [cameraError, setCameraError] = useState(null)
+
+  // Live object detection
+  const [detections, setDetections] = useState([])
+  const [detectionMeta, setDetectionMeta] = useState(EMPTY_META)
 
   const startCamera = useCallback(async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -72,7 +78,39 @@ export function AppProvider({ children }) {
   // Release the camera when the app unmounts.
   useEffect(() => () => stopCamera(), [stopCamera])
 
-  const value = { videoRef, cameraStatus, cameraError, startCamera, stopCamera }
+  // Stream frames to the backend and collect detections while live.
+  const handleResult = useCallback(({ detections: dets, latencyMs, fps }) => {
+    setDetections(dets)
+    setDetectionMeta({ connected: true, fps, latencyMs })
+  }, [])
+  const handleStatus = useCallback((connected) => {
+    setDetectionMeta((meta) => ({ ...meta, connected }))
+  }, [])
+
+  useDetectionStream({
+    videoRef,
+    enabled: cameraStatus === 'live',
+    onResult: handleResult,
+    onStatus: handleStatus,
+  })
+
+  // Clear detections whenever we leave the live state.
+  useEffect(() => {
+    if (cameraStatus !== 'live') {
+      setDetections([])
+      setDetectionMeta(EMPTY_META)
+    }
+  }, [cameraStatus])
+
+  const value = {
+    videoRef,
+    cameraStatus,
+    cameraError,
+    startCamera,
+    stopCamera,
+    detections,
+    detectionMeta,
+  }
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
 

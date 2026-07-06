@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # Identity
     app_name: str = "IntelliSight"
-    version: str = "0.2.0"
+    version: str = "0.5.0"
     environment: str = "development"
 
     # Server
@@ -27,6 +27,12 @@ class Settings(BaseSettings):
 
     # Comma-separated list of allowed frontend origins.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+
+    # Object detection (YOLO)
+    yolo_model: str = "yolov8n.pt"      # nano — small & fast; auto-downloaded
+    detection_conf: float = 0.35        # minimum confidence to report a box
+    detection_device: str = "cpu"       # "cpu" or "mps" (Apple GPU)
+    detection_imgsz: int = 640          # inference image size
 
     @property
     def cors_origins_list(self) -> list[str]:

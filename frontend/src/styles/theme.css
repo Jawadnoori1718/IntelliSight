@@ -36,6 +36,7 @@
   --cat-food: #fb923c;
   --cat-furniture: #34d399;
   --cat-text: #f472b6;
+  --cat-object: #94a3b8;
 
   /* Geometry */
   --radius: 20px;
@@ -129,6 +130,7 @@ body::after {
 .cat-tech { color: var(--cat-tech); }
 .cat-food { color: var(--cat-food); }
 .cat-furniture { color: var(--cat-furniture); }
+.cat-object { color: var(--cat-object); }
 .cat-text { color: var(--cat-text); }
 
 /* Shared animations */

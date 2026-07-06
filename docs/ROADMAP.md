@@ -23,7 +23,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 - [x] **Phase 4 — Live Camera Feed**
   Browser webcam streaming live inside the app.
 
-- [ ] **Phase 5 — Object Detection Engine**
+- [x] **Phase 5 — Object Detection Engine**
   YOLO running in the backend, streaming detections over WebSocket.
 
 - [ ] **Phase 6 — Beautiful Detection Overlays**
