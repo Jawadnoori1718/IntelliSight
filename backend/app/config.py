@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # Identity
     app_name: str = "IntelliSight"
-    version: str = "0.5.0"
+    version: str = "0.7.0"
     environment: str = "development"
 
     # Server

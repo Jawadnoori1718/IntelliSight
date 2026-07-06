@@ -29,7 +29,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 - [x] **Phase 6 — Beautiful Detection Overlays**
   Animated rounded boxes, clean labels, confidence, category colours.
 
-- [ ] **Phase 7 — Live Statistics Dashboard**
+- [x] **Phase 7 — Live Statistics Dashboard**
   FPS, object count, people, text blocks, scene confidence, response time.
 
 ## Reading

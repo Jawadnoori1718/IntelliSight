@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 const CAPTURE_WIDTH = 640 // downscale frames before sending (speed)
 const JPEG_QUALITY = 0.6
 const MIN_FRAME_GAP_MS = 120 // don't send faster than this
+const SPARK_LEN = 40 // how many samples the activity sparkline keeps
 
 /**
  * Streams webcam frames to the backend for object detection.
@@ -25,6 +26,7 @@ export function useDetectionStream({ videoRef, enabled, onResult, onStatus }) {
     let closed = false
     let sentAt = 0
     const frameTimes = []
+    const spark = []
 
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const ws = new WebSocket(`${proto}://${window.location.host}/ws/detect`)
@@ -78,10 +80,18 @@ export function useDetectionStream({ videoRef, enabled, onResult, onStatus }) {
       } catch {
         return
       }
+
+      const dets = data.detections || []
+      spark.push(dets.length)
+      if (spark.length > SPARK_LEN) spark.shift()
+
       onResultRef.current?.({
-        detections: data.detections || [],
+        detections: dets,
         latencyMs,
         fps: frameTimes.length,
+        inferenceMs: Math.round(data.inference_ms || 0),
+        cpu: Math.round(data.cpu || 0),
+        spark: spark.slice(),
       })
 
       const wait = Math.max(0, MIN_FRAME_GAP_MS - (now - sentAt))

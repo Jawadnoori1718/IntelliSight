@@ -12,6 +12,7 @@ from functools import lru_cache
 
 import cv2
 import numpy as np
+import psutil
 
 from app.config import get_settings
 
@@ -60,7 +61,14 @@ class Detector:
     def detect(self, image_bgr: "np.ndarray | None") -> dict:
         """Run detection on a BGR image and return normalised boxes."""
         if image_bgr is None or getattr(image_bgr, "size", 0) == 0:
-            return {"detections": [], "width": 0, "height": 0, "inference_ms": 0.0}
+            return {
+                "detections": [],
+                "width": 0,
+                "height": 0,
+                "inference_ms": 0.0,
+                "cpu": 0.0,
+                "device": self._settings.detection_device,
+            }
 
         h, w = image_bgr.shape[:2]
         with self._lock:
@@ -104,6 +112,8 @@ class Detector:
             "width": w,
             "height": h,
             "inference_ms": round(inference_ms, 1),
+            "cpu": round(psutil.cpu_percent(interval=None), 1),
+            "device": self._settings.detection_device,
         }
 
     def detect_jpeg(self, data: bytes) -> dict:

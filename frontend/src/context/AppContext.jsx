@@ -25,7 +25,7 @@ function describeCameraError(err) {
   }
 }
 
-const EMPTY_META = { connected: false, fps: 0, latencyMs: 0 }
+const EMPTY_META = { connected: false, fps: 0, latencyMs: 0, inferenceMs: 0, cpu: 0, spark: [] }
 
 export function AppProvider({ children }) {
   const videoRef = useRef(null)
@@ -79,9 +79,9 @@ export function AppProvider({ children }) {
   useEffect(() => () => stopCamera(), [stopCamera])
 
   // Stream frames to the backend and collect detections while live.
-  const handleResult = useCallback(({ detections: dets, latencyMs, fps }) => {
+  const handleResult = useCallback(({ detections: dets, latencyMs, fps, inferenceMs, cpu, spark }) => {
     setDetections(dets)
-    setDetectionMeta({ connected: true, fps, latencyMs })
+    setDetectionMeta({ connected: true, fps, latencyMs, inferenceMs, cpu, spark })
   }, [])
   const handleStatus = useCallback((connected) => {
     setDetectionMeta((meta) => ({ ...meta, connected }))
