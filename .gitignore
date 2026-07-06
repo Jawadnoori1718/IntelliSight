@@ -1,0 +1,54 @@
+# ─────────────────────────────────────────────
+#  IntelliSight — .gitignore
+# ─────────────────────────────────────────────
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# ── Secrets / environment ──
+.env
+.env.*
+!.env.example
+*.key
+secrets.*
+
+# ── AI model weights (auto-downloaded, too large for git) ──
+*.pt
+*.pth
+*.onnx
+*.engine
+models/weights/
+
+# ── Node / Frontend ──
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# ── Logs & data ──
+*.log
+logs/
+data/memory/*.db
+data/snapshots/
+
+# ── macOS ──
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# ── Editors / IDEs ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
