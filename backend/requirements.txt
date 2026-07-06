@@ -1,0 +1,11 @@
+# IntelliSight backend dependencies
+#
+# Phase 2 (skeleton) — lightweight, installs in seconds.
+# Heavier AI deps (torch, ultralytics, easyocr, anthropic) are added in later
+# phases so the environment stays fast to set up until we actually need them.
+
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pydantic>=2.6
+pydantic-settings>=2.2
+python-dotenv>=1.0

@@ -102,9 +102,10 @@ Closer to a **futuristic operating system** than a school project:
 See the full plan and progress in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
 
 - [x] **Phase 1** — Foundation & Repo Setup
-- [ ] Phases 2–20 — coming next
+- [x] **Phase 2** — Backend Skeleton (FastAPI + `/health`)
+- [ ] Phases 3–20 — coming next
 
-Setup and run instructions will appear here as the backend and frontend come online (Phases 2–3).
+**Run the backend:** see **[backend/README.md](backend/README.md)** (`cd backend`, create the venv, `./run.sh`, then open http://127.0.0.1:8000/health). The frontend arrives in Phase 3.
 
 ---
 

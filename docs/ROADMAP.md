@@ -12,7 +12,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 - [x] **Phase 1 — Foundation & Repo Setup**
   Repository, README, roadmap, license, `.gitignore`, and folder structure.
 
-- [ ] **Phase 2 — Backend Skeleton**
+- [x] **Phase 2 — Backend Skeleton**
   FastAPI server, config, `/health` endpoint, virtual environment + requirements.
 
 - [ ] **Phase 3 — Frontend Shell**
