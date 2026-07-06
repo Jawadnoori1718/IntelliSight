@@ -1,0 +1,10 @@
+# IntelliSight Desktop — dependencies
+#
+# Phase D1 (shell) only needs the GUI toolkit. The AI stack (ultralytics,
+# easyocr, torch) is added in Phase D3 when we plug in the vision engine.
+#
+# We use PySide6-Essentials (QtCore/QtGui/QtWidgets/QtNetwork) rather than the
+# full PySide6 — it's much smaller and has everything IntelliSight needs. The
+# heavy "addons" package (QtWebEngine, Qt3D, …) isn't used here.
+
+PySide6-Essentials>=6.7

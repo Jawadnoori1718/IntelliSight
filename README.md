@@ -73,7 +73,8 @@ Closer to a **futuristic operating system** than a school project:
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React + Vite (dark glassmorphism UI) |
+| **Desktop app** *(current)* | PySide6 / Qt — native window with QPainter segmentation overlays |
+| **Frontend** *(web v1)* | React + Vite (dark glassmorphism UI) |
 | **Backend** | Python + FastAPI |
 | **Object Detection** | Ultralytics YOLO |
 | **OCR** | EasyOCR |
@@ -98,24 +99,27 @@ Closer to a **futuristic operating system** than a school project:
 
 ## 📦 Project Status
 
-🚧 **Under active construction — built in 20 phases.**
-See the full plan and progress in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
+IntelliSight now has **two editions**:
 
-- [x] **Phase 1** — Foundation & Repo Setup
-- [x] **Phase 2** — Backend Skeleton (FastAPI + `/health`)
-- [x] **Phase 3** — Frontend Shell (React + glassmorphism UI)
-- [x] **Phase 4** — Live Camera Feed (browser webcam)
-- [x] **Phase 5** — Object Detection Engine (YOLO + WebSocket)
-- [x] **Phase 6** — Beautiful Detection Overlays (animated boxes on the video)
-- [x] **Phase 7** — Live Statistics Dashboard (FPS, inference, CPU, activity graph)
-- [x] **Phase 8** — OCR Engine (EasyOCR reads text from frames)
-- [ ] Phases 9–20 — coming next
+### 🖥️ Desktop Edition — *current focus*
+A **native Mac app** (PySide6) with super-accurate object **segmentation** — coloured
+outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](docs/ROADMAP.md)**).
 
-**To see live detection, run BOTH:**
-- **Backend** (Python 3.12): see **[backend/README.md](backend/README.md)** — `cd backend`, create the venv, `./run.sh`.
-- **Frontend**: `cd frontend`, `npm install`, `npm run dev`, open http://localhost:5173, click **Start Camera**.
+- [x] **D1** — Desktop app window + dark UI shell
+- [ ] D2–D12 — coming next
 
-The Objects panel and stats then fill with real objects YOLO detects through your webcam.
+**Run it** *(requires Python 3.12)*:
+```bash
+cd desktop
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+./run.sh
+```
+See **[desktop/README.md](desktop/README.md)**.
+
+### 🌐 Web Edition (v1 — Phases 1–8, complete)
+The original React + FastAPI build (detection, animated overlays, live stats, OCR).
+Kept and working — see **[frontend/](frontend/)** + **[backend/](backend/)**.
 
 ---
 

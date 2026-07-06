@@ -1,0 +1,33 @@
+"""IntelliSight Desktop — application entry point.
+
+Run it with:
+    python -m intellisight.app
+or:
+    ./run.sh
+"""
+
+import sys
+
+from PySide6.QtWidgets import QApplication
+
+from .main_window import MainWindow
+from .theme import apply_theme
+
+
+def create_app():
+    """Create the QApplication and main window (no event loop started yet)."""
+    app = QApplication.instance() or QApplication(sys.argv)
+    app.setApplicationName("IntelliSight")
+    apply_theme(app)
+    window = MainWindow()
+    return app, window
+
+
+def main():
+    app, window = create_app()
+    window.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

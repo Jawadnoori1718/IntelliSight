@@ -7,7 +7,33 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 
 ---
 
-## Foundation
+## 🖥️ Desktop Edition — current focus
+
+A **native desktop app** (PySide6) with super-accurate object **segmentation**
+(coloured outlines around everything it sees). This is now the primary IntelliSight.
+You push after each phase, exactly like before.
+
+- [x] **D1 — Desktop app window + dark UI shell** — a real app window opens.
+- [ ] **D2 — Live camera in the window** — your webcam, inside the app.
+- [ ] **D3 — Accurate vision engine** — YOLO11 segmentation + Apple GPU (MPS), threaded worker.
+- [ ] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
+- [ ] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
+- [ ] **D6 — Detected-objects panel** — live list with colours + confidence.
+- [ ] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
+- [ ] **D8 — Scene understanding** — AI describes the whole scene.
+- [ ] **D9 — Ask questions** — chat about what the camera sees.
+- [ ] **D10 — Voice** — speak and hear answers.
+- [ ] **D11 — Memory & timeline** — remember objects over time.
+- [ ] **D12 — Polish & package** — final visuals + a launchable Mac app.
+
+---
+
+## 🌐 Web version (v1 — Phases 1–8, complete & kept)
+
+*The original browser build (React + FastAPI). Superseded by the Desktop Edition
+above, but fully working and preserved.*
+
+### Foundation
 
 - [x] **Phase 1 — Foundation & Repo Setup**
   Repository, README, roadmap, license, `.gitignore`, and folder structure.
