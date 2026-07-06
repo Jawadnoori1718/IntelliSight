@@ -14,17 +14,22 @@ from PySide6.QtWidgets import (
 )
 
 from ..camera import CameraWorker
+from ..vision_worker import VisionWorker
 
 
 class CameraStage(QFrame):
-    """Owns the camera worker and swaps between idle / live / error pages."""
+    """Owns the camera + vision workers and swaps between idle / live / error pages."""
 
-    status_changed = Signal(str)  # idle | starting | live | error
+    status_changed = Signal(str)        # idle | starting | live | error
+    detections_changed = Signal(object)  # list[detection]
+    vision_status_changed = Signal(str)  # loading | ready | error
 
     def __init__(self):
         super().__init__()
         self.setObjectName("Stage")
         self.worker = None
+        self.vision = None
+        self.detections = []
         self._got_frame = False
 
         self.stack = QStackedWidget()
@@ -99,25 +104,37 @@ class CameraStage(QFrame):
         if self.worker is not None:
             return
         self._got_frame = False
+        self.detections = []
         self.status_changed.emit("starting")
         self.stack.setCurrentIndex(1)
+
         self.worker = CameraWorker(0)
         self.worker.frame_ready.connect(self._on_frame)
+        self.worker.frame_np.connect(self._on_frame_np)
         self.worker.error.connect(self._on_error)
+
+        self.vision = VisionWorker()
+        self.vision.results_ready.connect(self._on_results)
+        self.vision.status.connect(self.vision_status_changed)
+
         self.worker.start()
+        self.vision.start()
 
     def stop_camera(self) -> None:
-        self._stop_worker()
+        self._stop_workers()
         self.stack.setCurrentIndex(0)
         self.status_changed.emit("idle")
 
     def shutdown(self) -> None:
-        self._stop_worker()
+        self._stop_workers()
 
-    def _stop_worker(self) -> None:
+    def _stop_workers(self) -> None:
         if self.worker is not None:
             self.worker.stop()
             self.worker = None
+        if self.vision is not None:
+            self.vision.stop()
+            self.vision = None
 
     # ── slots ──
     def _on_frame(self, image) -> None:
@@ -130,6 +147,14 @@ class CameraStage(QFrame):
         self.video_label.setPixmap(
             pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
+
+    def _on_frame_np(self, frame) -> None:
+        if self.vision is not None:
+            self.vision.submit(frame)
+
+    def _on_results(self, detections) -> None:
+        self.detections = detections
+        self.detections_changed.emit(detections)
 
     def _on_error(self, message) -> None:
         self._stop_worker()

@@ -18,7 +18,8 @@ def bgr_to_qimage(frame_bgr) -> QImage:
 
 
 class CameraWorker(QThread):
-    frame_ready = Signal(QImage)
+    frame_ready = Signal(QImage)   # for display
+    frame_np = Signal(object)      # raw BGR frame for the vision engine
     error = Signal(str)
 
     def __init__(self, index: int = 0, parent=None):
@@ -46,6 +47,7 @@ class CameraWorker(QThread):
                 self.msleep(15)
                 continue
             self.frame_ready.emit(bgr_to_qimage(frame))
+            self.frame_np.emit(frame)  # cv2 returns a fresh array each read
             self.msleep(12)  # ~ up to the camera's frame rate
 
         cap.release()

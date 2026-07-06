@@ -13,3 +13,9 @@ PySide6-Essentials>=6.7
 # opencv-python provides webcam capture (cv2.VideoCapture). Same package
 # ultralytics uses, so it stays consistent when the AI stack is added in D3.
 opencv-python>=4.9
+
+# ── Vision AI (Phase D3) ──
+# ultralytics pulls in torch/torchvision. We use a YOLO11 segmentation model
+# (accurate object outlines), auto-downloaded on first run, running on the
+# Apple GPU (MPS) when available.
+ultralytics>=8.3.0

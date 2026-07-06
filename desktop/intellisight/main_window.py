@@ -58,6 +58,8 @@ class MainWindow(QMainWindow):
         body.setSpacing(16)
         self.camera_stage = CameraStage()
         self.camera_stage.status_changed.connect(self._on_camera_status)
+        self.camera_stage.detections_changed.connect(self._on_detections)
+        self.camera_stage.vision_status_changed.connect(self._on_vision_status)
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
@@ -106,18 +108,40 @@ class MainWindow(QMainWindow):
         layout.setSpacing(16)
 
         scene = Panel("Current Scene")
-        scene.body.addWidget(self._panel_body("Waiting for the camera…"))
+        self.scene_body = self._panel_body("Waiting for the camera…")
+        scene.body.addWidget(self.scene_body)
 
         objects = Panel("Detected Objects")
-        objects.body.addWidget(self._panel_body("Nothing detected yet."))
+        self.objects_body = self._panel_body("Nothing detected yet.")
+        objects.body.addWidget(self.objects_body)
 
         stats = Panel("Live Stats")
-        stats.body.addWidget(self._panel_body("Start the camera to see live stats."))
+        self.stats_body = self._panel_body("Start the camera to see live stats.")
+        stats.body.addWidget(self.stats_body)
 
         layout.addWidget(scene)
         layout.addWidget(objects)
         layout.addWidget(stats, 1)
         return side
+
+    # ── vision results → sidebar ──
+    def _on_detections(self, detections) -> None:
+        if not detections:
+            self.objects_body.setText("Scanning… point the camera at some objects.")
+            return
+        seen = []
+        for det in detections:
+            if det["label"] not in seen:
+                seen.append(det["label"])
+        self.objects_body.setText(f"{len(detections)} detected — " + ", ".join(seen[:10]))
+
+    def _on_vision_status(self, status: str) -> None:
+        if status == "loading":
+            self.objects_body.setText("Loading the AI model… (first run downloads it — please wait)")
+        elif status == "ready":
+            self.objects_body.setText("AI ready — scanning…")
+        elif status == "error":
+            self.objects_body.setText("The AI model failed to load. Check the terminal for details.")
 
     # ── camera status → header pill ──
     def _on_camera_status(self, status: str) -> None:
