@@ -5,6 +5,7 @@ import { AppProvider } from './context/AppContext'
 import './styles/theme.css'
 import './styles/layout.css'
 import './styles/panels.css'
+import './styles/detections.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

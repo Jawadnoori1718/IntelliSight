@@ -1,6 +1,7 @@
 import { Camera, CameraOff, Loader2, Square } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import StatsDashboard from './StatsDashboard'
+import DetectionOverlay from './DetectionOverlay'
 
 export default function CameraStage() {
   const { videoRef, cameraStatus, cameraError, startCamera, stopCamera } = useApp()
@@ -18,6 +19,8 @@ export default function CameraStage() {
         muted
         playsInline
       />
+
+      <DetectionOverlay />
 
       {!isLive && (
         <div className="stage-placeholder">

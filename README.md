@@ -106,7 +106,8 @@ See the full plan and progress in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
 - [x] **Phase 3** — Frontend Shell (React + glassmorphism UI)
 - [x] **Phase 4** — Live Camera Feed (browser webcam)
 - [x] **Phase 5** — Object Detection Engine (YOLO + WebSocket)
-- [ ] Phases 6–20 — coming next
+- [x] **Phase 6** — Beautiful Detection Overlays (animated boxes on the video)
+- [ ] Phases 7–20 — coming next
 
 **To see live detection, run BOTH:**
 - **Backend** (Python 3.12): see **[backend/README.md](backend/README.md)** — `cd backend`, create the venv, `./run.sh`.
