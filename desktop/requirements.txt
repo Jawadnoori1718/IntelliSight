@@ -8,3 +8,8 @@
 # heavy "addons" package (QtWebEngine, Qt3D, …) isn't used here.
 
 PySide6-Essentials>=6.7
+
+# ── Camera (Phase D2) ──
+# opencv-python provides webcam capture (cv2.VideoCapture). Same package
+# ultralytics uses, so it stays consistent when the AI stack is added in D3.
+opencv-python>=4.9

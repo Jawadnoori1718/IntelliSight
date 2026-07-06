@@ -10,6 +10,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .widgets.camera_stage import CameraStage
+
+# camera status -> (pill state property, pill text)
+_PILL = {
+    "idle": ("idle", "●  STANDBY"),
+    "starting": ("idle", "●  CONNECTING"),
+    "live": ("live", "●  LIVE"),
+    "error": ("error", "●  OFFLINE"),
+}
+
 
 class Panel(QFrame):
     """A rounded glass-style sidebar panel with a title and a body area."""
@@ -46,7 +56,9 @@ class MainWindow(QMainWindow):
 
         body = QHBoxLayout()
         body.setSpacing(16)
-        body.addWidget(self._build_stage(), 1)
+        self.camera_stage = CameraStage()
+        self.camera_stage.status_changed.connect(self._on_camera_status)
+        body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
 
@@ -84,32 +96,6 @@ class MainWindow(QMainWindow):
 
         return header
 
-    # ── Camera stage ──
-    def _build_stage(self) -> QFrame:
-        stage = QFrame()
-        stage.setObjectName("Stage")
-
-        layout = QVBoxLayout(stage)
-        layout.addStretch(1)
-
-        icon = QLabel("📷")
-        icon.setObjectName("StageIcon")
-        icon.setAlignment(Qt.AlignCenter)
-        layout.addWidget(icon)
-
-        title = QLabel("Camera feed appears here")
-        title.setObjectName("StageTitle")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
-
-        hint = QLabel("Live webcam arrives in Phase D2.")
-        hint.setObjectName("StageHint")
-        hint.setAlignment(Qt.AlignCenter)
-        layout.addWidget(hint)
-
-        layout.addStretch(1)
-        return stage
-
     # ── Sidebar ──
     def _build_sidebar(self) -> QWidget:
         side = QWidget()
@@ -132,6 +118,18 @@ class MainWindow(QMainWindow):
         layout.addWidget(objects)
         layout.addWidget(stats, 1)
         return side
+
+    # ── camera status → header pill ──
+    def _on_camera_status(self, status: str) -> None:
+        state, text = _PILL.get(status, _PILL["idle"])
+        self.status_pill.setText(text)
+        self.status_pill.setProperty("state", state)
+        self.status_pill.style().unpolish(self.status_pill)
+        self.status_pill.style().polish(self.status_pill)
+
+    def closeEvent(self, event) -> None:
+        self.camera_stage.shutdown()
+        super().closeEvent(event)
 
     @staticmethod
     def _panel_body(text: str) -> QLabel:

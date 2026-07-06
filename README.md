@@ -106,7 +106,8 @@ A **native Mac app** (PySide6) with super-accurate object **segmentation** — c
 outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](docs/ROADMAP.md)**).
 
 - [x] **D1** — Desktop app window + dark UI shell
-- [ ] D2–D12 — coming next
+- [x] **D2** — Live camera in the window
+- [ ] D3–D12 — coming next
 
 **Run it** *(requires Python 3.12)*:
 ```bash

@@ -14,7 +14,7 @@ A **native desktop app** (PySide6) with super-accurate object **segmentation**
 You push after each phase, exactly like before.
 
 - [x] **D1 — Desktop app window + dark UI shell** — a real app window opens.
-- [ ] **D2 — Live camera in the window** — your webcam, inside the app.
+- [x] **D2 — Live camera in the window** — your webcam, inside the app.
 - [ ] **D3 — Accurate vision engine** — YOLO11 segmentation + Apple GPU (MPS), threaded worker.
 - [ ] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
 - [ ] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.

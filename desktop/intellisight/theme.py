@@ -42,6 +42,16 @@ QLabel#StatusPill {{
     font-weight: 600;
     font-size: 12px;
 }}
+QLabel#StatusPill[state="live"] {{
+    background-color: rgba(52, 211, 153, 0.12);
+    color: {OK};
+    border: 1px solid rgba(52, 211, 153, 0.40);
+}}
+QLabel#StatusPill[state="error"] {{
+    background-color: rgba(248, 113, 113, 0.12);
+    color: {DANGER};
+    border: 1px solid rgba(248, 113, 113, 0.40);
+}}
 
 /* Camera stage */
 QFrame#Stage {{
@@ -52,6 +62,32 @@ QFrame#Stage {{
 QLabel#StageTitle {{ color: {TEXT}; font-size: 17px; font-weight: 600; }}
 QLabel#StageHint {{ color: {TEXT_DIM}; font-size: 13px; }}
 QLabel#StageIcon {{ font-size: 46px; }}
+QLabel#VideoLabel {{ background-color: #04060c; border-radius: 14px; }}
+QLabel#ErrorText {{ color: {DANGER}; font-size: 13px; }}
+
+/* Buttons */
+QPushButton#StartBtn {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+    color: #04121e;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 22px;
+    font-size: 14px;
+    font-weight: 600;
+}}
+QPushButton#StartBtn:hover {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4cc5fb, stop:1 #7278f2);
+}}
+QPushButton#StopBtn {{
+    background-color: rgba(248, 113, 113, 0.12);
+    color: {DANGER};
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-size: 12px;
+    font-weight: 600;
+}}
+QPushButton#StopBtn:hover {{ background-color: rgba(248, 113, 113, 0.20); }}
 
 /* Sidebar panels */
 QFrame[panel="true"] {{
