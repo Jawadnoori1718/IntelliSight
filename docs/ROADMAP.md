@@ -18,7 +18,7 @@ You push after each phase, exactly like before.
 - [x] **D3 — Accurate vision engine** — YOLO11 segmentation + Apple GPU (MPS), threaded worker.
 - [x] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
 - [x] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
-- [ ] **D6 — Detected-objects panel** — live list with colours + confidence.
+- [x] **D6 — Detected-objects panel** — live list with colours + confidence.
 - [ ] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
 - [ ] **D8 — Scene understanding** — AI describes the whole scene.
 - [ ] **D9 — Ask questions** — chat about what the camera sees.

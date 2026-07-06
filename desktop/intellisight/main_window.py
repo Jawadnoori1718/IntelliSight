@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from .widgets.camera_stage import CameraStage
+from .widgets.objects_panel import ObjectsPanel
 from .widgets.stats_panel import StatsPanel
 
 # camera status -> (pill state property, pill text)
@@ -113,16 +114,12 @@ class MainWindow(QMainWindow):
         self.scene_body = self._panel_body("Waiting for the camera…")
         scene.body.addWidget(self.scene_body)
 
-        objects = Panel("Detected Objects")
-        self.objects_body = self._panel_body("Nothing detected yet.")
-        objects.body.addWidget(self.objects_body)
-
+        self.objects_panel = ObjectsPanel()
         self.stats_panel = StatsPanel()
 
         layout.addWidget(scene)
-        layout.addWidget(objects)
+        layout.addWidget(self.objects_panel, 1)
         layout.addWidget(self.stats_panel)
-        layout.addStretch(1)
         return side
 
     # ── vision results → sidebar ──
@@ -135,14 +132,10 @@ class MainWindow(QMainWindow):
         if count:
             avg = round(sum(d["confidence"] for d in detections) / count * 100)
             self.stats_panel.set("confidence", f"{avg}%")
-            seen = []
-            for det in detections:
-                if det["label"] not in seen:
-                    seen.append(det["label"])
-            self.objects_body.setText(f"{count} detected — " + ", ".join(seen[:10]))
         else:
             self.stats_panel.set("confidence", "—")
-            self.objects_body.setText("Scanning… point the camera at some objects.")
+
+        self.objects_panel.update(detections)
 
     def _on_stats(self, stats) -> None:
         self.stats_panel.set("fps", str(stats.get("fps", 0)))
@@ -151,11 +144,11 @@ class MainWindow(QMainWindow):
 
     def _on_vision_status(self, status: str) -> None:
         if status == "loading":
-            self.objects_body.setText("Loading the AI model… (first run downloads it — please wait)")
+            self.objects_panel.set_message("Loading the AI model… (first run downloads it — please wait)")
         elif status == "ready":
-            self.objects_body.setText("AI ready — scanning…")
+            self.objects_panel.set_message("AI ready — scanning…")
         elif status == "error":
-            self.objects_body.setText("The AI model failed to load. Check the terminal for details.")
+            self.objects_panel.set_message("The AI model failed to load. Check the terminal for details.")
 
     # ── camera status → header pill ──
     def _on_camera_status(self, status: str) -> None:
@@ -166,7 +159,7 @@ class MainWindow(QMainWindow):
         self.status_pill.style().polish(self.status_pill)
         if status in ("idle", "error"):
             self.stats_panel.reset()
-            self.objects_body.setText("Nothing detected yet.")
+            self.objects_panel.set_message("Nothing detected yet.")
 
     def closeEvent(self, event) -> None:
         self.camera_stage.shutdown()

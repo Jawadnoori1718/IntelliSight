@@ -110,7 +110,8 @@ outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](
 - [x] **D3** — Accurate vision engine (YOLO11-seg on Apple GPU)
 - [x] **D4** — Segmentation overlays (outlines + labels on everything)
 - [x] **D5** — Live stats panel (FPS, inference, CPU, confidence…)
-- [ ] D6–D12 — coming next
+- [x] **D6** — Detected-objects panel (live scrollable list)
+- [ ] D7–D12 — coming next
 
 **Run it** *(requires Python 3.12)*:
 ```bash

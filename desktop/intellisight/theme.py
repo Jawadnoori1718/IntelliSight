@@ -107,6 +107,24 @@ QFrame#StatTile {{
 QLabel#StatValue {{ font-size: 17px; font-weight: 700; color: {TEXT}; }}
 QLabel#StatName {{ font-size: 9px; letter-spacing: 1px; color: {TEXT_FAINT}; }}
 
+/* Detected-objects list */
+QLabel#CountPill {{
+    color: {ACCENT};
+    background-color: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 9px;
+    padding: 1px 10px;
+    font-weight: 600;
+    font-size: 12px;
+}}
+QFrame#ObjRow {{
+    background-color: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+}}
+QLabel#ObjName {{ font-size: 13px; font-weight: 600; color: {TEXT}; }}
+QLabel#ObjPct {{ font-size: 12px; color: {TEXT_DIM}; }}
+
 /* Scrollbars */
 QScrollBar:vertical {{ background: transparent; width: 8px; margin: 0; }}
 QScrollBar::handle:vertical {{ background: rgba(120, 160, 255, 0.18); border-radius: 4px; min-height: 24px; }}
