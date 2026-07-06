@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from .widgets.camera_stage import CameraStage
+from .widgets.stats_panel import StatsPanel
 
 # camera status -> (pill state property, pill text)
 _PILL = {
@@ -59,6 +60,7 @@ class MainWindow(QMainWindow):
         self.camera_stage = CameraStage()
         self.camera_stage.status_changed.connect(self._on_camera_status)
         self.camera_stage.detections_changed.connect(self._on_detections)
+        self.camera_stage.stats_changed.connect(self._on_stats)
         self.camera_stage.vision_status_changed.connect(self._on_vision_status)
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
@@ -115,25 +117,37 @@ class MainWindow(QMainWindow):
         self.objects_body = self._panel_body("Nothing detected yet.")
         objects.body.addWidget(self.objects_body)
 
-        stats = Panel("Live Stats")
-        self.stats_body = self._panel_body("Start the camera to see live stats.")
-        stats.body.addWidget(self.stats_body)
+        self.stats_panel = StatsPanel()
 
         layout.addWidget(scene)
         layout.addWidget(objects)
-        layout.addWidget(stats, 1)
+        layout.addWidget(self.stats_panel)
+        layout.addStretch(1)
         return side
 
     # ── vision results → sidebar ──
     def _on_detections(self, detections) -> None:
-        if not detections:
+        count = len(detections)
+        people = sum(1 for d in detections if d["category"] == "person")
+        self.stats_panel.set("objects", str(count))
+        self.stats_panel.set("people", str(people))
+
+        if count:
+            avg = round(sum(d["confidence"] for d in detections) / count * 100)
+            self.stats_panel.set("confidence", f"{avg}%")
+            seen = []
+            for det in detections:
+                if det["label"] not in seen:
+                    seen.append(det["label"])
+            self.objects_body.setText(f"{count} detected — " + ", ".join(seen[:10]))
+        else:
+            self.stats_panel.set("confidence", "—")
             self.objects_body.setText("Scanning… point the camera at some objects.")
-            return
-        seen = []
-        for det in detections:
-            if det["label"] not in seen:
-                seen.append(det["label"])
-        self.objects_body.setText(f"{len(detections)} detected — " + ", ".join(seen[:10]))
+
+    def _on_stats(self, stats) -> None:
+        self.stats_panel.set("fps", str(stats.get("fps", 0)))
+        self.stats_panel.set("inference", f"{stats.get('inference_ms', 0)}ms")
+        self.stats_panel.set("cpu", f"{stats.get('cpu', 0)}%")
 
     def _on_vision_status(self, status: str) -> None:
         if status == "loading":
@@ -150,6 +164,9 @@ class MainWindow(QMainWindow):
         self.status_pill.setProperty("state", state)
         self.status_pill.style().unpolish(self.status_pill)
         self.status_pill.style().polish(self.status_pill)
+        if status in ("idle", "error"):
+            self.stats_panel.reset()
+            self.objects_body.setText("Nothing detected yet.")
 
     def closeEvent(self, event) -> None:
         self.camera_stage.shutdown()

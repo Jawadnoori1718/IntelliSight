@@ -5,12 +5,15 @@ model never backs up the smooth camera preview.
 """
 
 import threading
+import time
 
+import psutil
 from PySide6.QtCore import QThread, Signal
 
 
 class VisionWorker(QThread):
     results_ready = Signal(object)  # list[detection]
+    stats_ready = Signal(object)    # {inference_ms, fps, cpu}
     status = Signal(str)            # loading | ready | error
 
     def __init__(self, parent=None):
@@ -38,6 +41,7 @@ class VisionWorker(QThread):
             return
 
         self._running = True
+        completed = []  # timestamps of recent inferences, for FPS
         while self._running:
             with self._lock:
                 frame = self._latest
@@ -46,7 +50,23 @@ class VisionWorker(QThread):
                 self.msleep(5)
                 continue
             try:
-                self.results_ready.emit(self._engine.infer(frame))
+                t0 = time.perf_counter()
+                detections = self._engine.infer(frame)
+                inference_ms = (time.perf_counter() - t0) * 1000.0
+
+                now = time.perf_counter()
+                completed.append(now)
+                while completed and now - completed[0] > 1.0:
+                    completed.pop(0)
+
+                self.results_ready.emit(detections)
+                self.stats_ready.emit(
+                    {
+                        "inference_ms": round(inference_ms, 1),
+                        "fps": len(completed),
+                        "cpu": round(psutil.cpu_percent(interval=None), 1),
+                    }
+                )
             except Exception:
                 # A single bad frame shouldn't kill the worker.
                 self.msleep(5)

@@ -23,6 +23,7 @@ class CameraStage(QFrame):
 
     status_changed = Signal(str)        # idle | starting | live | error
     detections_changed = Signal(object)  # list[detection]
+    stats_changed = Signal(object)       # {inference_ms, fps, cpu}
     vision_status_changed = Signal(str)  # loading | ready | error
 
     def __init__(self):
@@ -116,6 +117,7 @@ class CameraStage(QFrame):
 
         self.vision = VisionWorker()
         self.vision.results_ready.connect(self._on_results)
+        self.vision.stats_ready.connect(self.stats_changed)
         self.vision.status.connect(self.vision_status_changed)
 
         self.worker.start()

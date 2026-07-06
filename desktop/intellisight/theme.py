@@ -98,6 +98,15 @@ QFrame[panel="true"] {{
 QLabel#PanelTitle {{ font-size: 14px; font-weight: 600; color: {TEXT}; }}
 QLabel#PanelBody {{ color: {TEXT_DIM}; font-size: 13px; }}
 
+/* Stat tiles */
+QFrame#StatTile {{
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+}}
+QLabel#StatValue {{ font-size: 17px; font-weight: 700; color: {TEXT}; }}
+QLabel#StatName {{ font-size: 9px; letter-spacing: 1px; color: {TEXT_FAINT}; }}
+
 /* Scrollbars */
 QScrollBar:vertical {{ background: transparent; width: 8px; margin: 0; }}
 QScrollBar::handle:vertical {{ background: rgba(120, 160, 255, 0.18); border-radius: 4px; min-height: 24px; }}

@@ -17,7 +17,7 @@ You push after each phase, exactly like before.
 - [x] **D2 — Live camera in the window** — your webcam, inside the app.
 - [x] **D3 — Accurate vision engine** — YOLO11 segmentation + Apple GPU (MPS), threaded worker.
 - [x] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
-- [ ] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
+- [x] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
 - [ ] **D6 — Detected-objects panel** — live list with colours + confidence.
 - [ ] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
 - [ ] **D8 — Scene understanding** — AI describes the whole scene.
