@@ -19,7 +19,7 @@ You push after each phase, exactly like before.
 - [x] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
 - [x] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
 - [x] **D6 — Detected-objects panel** — live list with colours + confidence.
-- [ ] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
+- [x] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
 - [ ] **D8 — Scene understanding** — AI describes the whole scene.
 - [ ] **D9 — Ask questions** — chat about what the camera sees.
 - [ ] **D10 — Voice** — speak and hear answers.

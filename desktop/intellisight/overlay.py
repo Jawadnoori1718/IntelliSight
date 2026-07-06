@@ -16,6 +16,7 @@ CATEGORY_COLORS = {
     "object": QColor("#94a3b8"),
 }
 _LABEL_TEXT = QColor("#05070e")
+TEXT_COLOR = QColor("#f472b6")  # OCR highlights
 
 
 def _color(category: str) -> QColor:
@@ -76,6 +77,63 @@ def draw_detections(image: QImage, detections: list) -> QImage:
 
     painter.end()
     return image
+
+
+def draw_text_blocks(image: QImage, blocks: list) -> QImage:
+    """Highlight recognised text regions on `image` in place."""
+    if not blocks:
+        return image
+
+    width = image.width()
+    height = image.height()
+
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+    font = QFont("Helvetica Neue")
+    font.setPixelSize(max(11, int(height * 0.018)))
+    font.setBold(True)
+    painter.setFont(font)
+
+    for block in blocks:
+        box = block["box"]
+        rect = QRectF(
+            box["x1"] * width,
+            box["y1"] * height,
+            (box["x2"] - box["x1"]) * width,
+            (box["y2"] - box["y1"]) * height,
+        )
+        fill = QColor(TEXT_COLOR)
+        fill.setAlpha(30)
+        painter.setBrush(fill)
+        painter.setPen(QPen(TEXT_COLOR, 2))
+        painter.drawRoundedRect(rect, 5, 5)
+
+        text = block["text"]
+        if len(text) > 22:
+            text = text[:21] + "…"
+        _draw_pill(painter, text, TEXT_COLOR, rect.x(), rect.y(), width)
+
+    painter.end()
+    return image
+
+
+def _draw_pill(painter: QPainter, text: str, color: QColor, box_x: float, box_y: float, width: int) -> None:
+    metrics = painter.fontMetrics()
+    pad_x, pad_y = 7, 3
+    rect_w = metrics.horizontalAdvance(text) + pad_x * 2
+    rect_h = metrics.height() + pad_y
+
+    label_y = box_y - rect_h - 3
+    if label_y < 0:
+        label_y = box_y + 3
+    label_x = max(0.0, min(box_x, width - rect_w))
+
+    label_rect = QRectF(label_x, label_y, rect_w, rect_h)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(color)
+    painter.drawRoundedRect(label_rect, 6, 6)
+    painter.setPen(_LABEL_TEXT)
+    painter.drawText(label_rect, Qt.AlignCenter, text)
 
 
 def _draw_label(painter: QPainter, det: dict, color: QColor, width: int, height: int) -> None:

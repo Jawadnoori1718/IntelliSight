@@ -125,6 +125,16 @@ QFrame#ObjRow {{
 QLabel#ObjName {{ font-size: 13px; font-weight: 600; color: {TEXT}; }}
 QLabel#ObjPct {{ font-size: 12px; color: {TEXT_DIM}; }}
 
+/* Recognised text lines */
+QLabel#TextLine {{
+    font-size: 12px;
+    color: {TEXT_DIM};
+    background-color: rgba(244, 114, 182, 0.08);
+    border: 1px solid rgba(244, 114, 182, 0.20);
+    border-radius: 8px;
+    padding: 6px 10px;
+}}
+
 /* Scrollbars */
 QScrollBar:vertical {{ background: transparent; width: 8px; margin: 0; }}
 QScrollBar::handle:vertical {{ background: rgba(120, 160, 255, 0.18); border-radius: 4px; min-height: 24px; }}

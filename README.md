@@ -111,7 +111,8 @@ outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](
 - [x] **D4** — Segmentation overlays (outlines + labels on everything)
 - [x] **D5** — Live stats panel (FPS, inference, CPU, confidence…)
 - [x] **D6** — Detected-objects panel (live scrollable list)
-- [ ] D7–D12 — coming next
+- [x] **D7** — Read text (OCR) — highlights on the video + a Text panel
+- [ ] D8–D12 — coming next
 
 **Run it** *(requires Python 3.12)*:
 ```bash

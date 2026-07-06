@@ -19,3 +19,7 @@ opencv-python>=4.9
 # (accurate object outlines), auto-downloaded on first run, running on the
 # Apple GPU (MPS) when available.
 ultralytics>=8.3.0
+
+# ── Text recognition / OCR (Phase D7) ──
+# easyocr reuses the torch already installed; downloads its models on first use.
+easyocr>=1.7.0

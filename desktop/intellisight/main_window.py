@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 from .widgets.camera_stage import CameraStage
 from .widgets.objects_panel import ObjectsPanel
 from .widgets.stats_panel import StatsPanel
+from .widgets.text_panel import TextPanel
 
 # camera status -> (pill state property, pill text)
 _PILL = {
@@ -63,6 +64,8 @@ class MainWindow(QMainWindow):
         self.camera_stage.detections_changed.connect(self._on_detections)
         self.camera_stage.stats_changed.connect(self._on_stats)
         self.camera_stage.vision_status_changed.connect(self._on_vision_status)
+        self.camera_stage.text_changed.connect(self._on_text)
+        self.camera_stage.ocr_status_changed.connect(self._on_ocr_status)
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
@@ -115,10 +118,12 @@ class MainWindow(QMainWindow):
         scene.body.addWidget(self.scene_body)
 
         self.objects_panel = ObjectsPanel()
+        self.text_panel = TextPanel()
         self.stats_panel = StatsPanel()
 
         layout.addWidget(scene)
-        layout.addWidget(self.objects_panel, 1)
+        layout.addWidget(self.objects_panel, 2)
+        layout.addWidget(self.text_panel, 1)
         layout.addWidget(self.stats_panel)
         return side
 
@@ -142,6 +147,17 @@ class MainWindow(QMainWindow):
         self.stats_panel.set("inference", f"{stats.get('inference_ms', 0)}ms")
         self.stats_panel.set("cpu", f"{stats.get('cpu', 0)}%")
 
+    def _on_text(self, blocks) -> None:
+        self.text_panel.update(blocks)
+
+    def _on_ocr_status(self, status: str) -> None:
+        if status == "loading":
+            self.text_panel.set_message("Loading the text reader… (first run downloads it)")
+        elif status == "ready":
+            self.text_panel.set_message("Reader ready — looking for text…")
+        elif status == "error":
+            self.text_panel.set_message("The text reader failed to load. Check the terminal.")
+
     def _on_vision_status(self, status: str) -> None:
         if status == "loading":
             self.objects_panel.set_message("Loading the AI model… (first run downloads it — please wait)")
@@ -160,6 +176,7 @@ class MainWindow(QMainWindow):
         if status in ("idle", "error"):
             self.stats_panel.reset()
             self.objects_panel.set_message("Nothing detected yet.")
+            self.text_panel.set_message("No text detected yet.")
 
     def closeEvent(self, event) -> None:
         self.camera_stage.shutdown()
