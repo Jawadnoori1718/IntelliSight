@@ -108,7 +108,8 @@ See the full plan and progress in **[docs/ROADMAP.md](docs/ROADMAP.md)**.
 - [x] **Phase 5** — Object Detection Engine (YOLO + WebSocket)
 - [x] **Phase 6** — Beautiful Detection Overlays (animated boxes on the video)
 - [x] **Phase 7** — Live Statistics Dashboard (FPS, inference, CPU, activity graph)
-- [ ] Phases 8–20 — coming next
+- [x] **Phase 8** — OCR Engine (EasyOCR reads text from frames)
+- [ ] Phases 9–20 — coming next
 
 **To see live detection, run BOTH:**
 - **Backend** (Python 3.12): see **[backend/README.md](backend/README.md)** — `cd backend`, create the venv, `./run.sh`.

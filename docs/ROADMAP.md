@@ -34,7 +34,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 
 ## Reading
 
-- [ ] **Phase 8 — OCR Engine**
+- [x] **Phase 8 — OCR Engine**
   EasyOCR in the backend, reading text from frames.
 
 - [ ] **Phase 9 — OCR Overlays & Text Panel**

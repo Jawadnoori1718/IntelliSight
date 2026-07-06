@@ -11,3 +11,7 @@ python-multipart>=0.0.9        # file uploads for /api/detect
 # ── Object detection (Phase 5) ──
 # ultralytics pulls in torch, torchvision, opencv-python, numpy and pillow.
 ultralytics>=8.3.0
+
+# ── Text recognition / OCR (Phase 8) ──
+# easyocr reuses the torch already installed; it downloads its models on first use.
+easyocr>=1.7.0

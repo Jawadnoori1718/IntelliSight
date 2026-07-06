@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # Identity
     app_name: str = "IntelliSight"
-    version: str = "0.7.0"
+    version: str = "0.8.0"
     environment: str = "development"
 
     # Server
@@ -34,10 +34,19 @@ class Settings(BaseSettings):
     detection_device: str = "cpu"       # "cpu" or "mps" (Apple GPU)
     detection_imgsz: int = 640          # inference image size
 
+    # Text recognition (EasyOCR)
+    ocr_languages: str = "en"           # comma-separated language codes
+    ocr_conf: float = 0.30              # minimum confidence to report a text block
+
     @property
     def cors_origins_list(self) -> list[str]:
         """The CORS origins parsed into a clean list."""
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def ocr_languages_list(self) -> list[str]:
+        """The OCR languages parsed into a clean list."""
+        return [lang.strip() for lang in self.ocr_languages.split(",") if lang.strip()]
 
 
 @lru_cache

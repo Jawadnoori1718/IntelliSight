@@ -3,7 +3,7 @@
 The Python **FastAPI** backend. This is IntelliSight's brain and senses:
 
 - **YOLO** — object detection ✅ *(Phase 5)*
-- **EasyOCR** — text recognition *(Phase 8)*
+- **EasyOCR** — text recognition ✅ *(Phase 8)*
 - **Claude (multimodal)** — scene understanding, explanations, Q&A *(Phase 10)*
 - **Memory** — object timeline, search, and relationships *(Phase 15+)*
 - **WebSockets** — low-latency realtime detection stream ✅ *(Phase 5)*
@@ -52,6 +52,8 @@ Open **http://127.0.0.1:8000/health** to confirm it's alive, and
 | GET | `/health` | Liveness check |
 | POST | `/api/detect` | Detect objects in one uploaded image (`file=@photo.jpg`) |
 | WS | `/ws/detect` | Realtime stream — send JPEG frames, receive detections |
+| POST | `/api/ocr` | Read text in one uploaded image |
+| WS | `/ws/ocr` | Send JPEG frames, receive recognised text blocks |
 
 Detections come back as normalised boxes (0–1), so the frontend can scale them to
 any display size:
@@ -80,9 +82,11 @@ backend/
     ├── config.py         # settings (env-driven, with defaults)
     ├── routers/
     │   ├── health.py     # /health
-    │   └── detect.py     # /api/detect + /ws/detect
+    │   ├── detect.py     # /api/detect + /ws/detect
+    │   └── ocr.py        # /api/ocr + /ws/ocr
     └── services/
-        └── detector.py   # YOLO wrapper (lazy-loaded model)
+        ├── detector.py   # YOLO wrapper (lazy-loaded model)
+        └── ocr.py        # EasyOCR wrapper (lazy-loaded reader)
 ```
 
 > 🚧 OCR and AI endpoints arrive in later phases — see [`../docs/ROADMAP.md`](../docs/ROADMAP.md).
