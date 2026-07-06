@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..camera import CameraWorker
+from ..overlay import draw_detections
 from ..vision_worker import VisionWorker
 
 
@@ -143,6 +144,10 @@ class CameraStage(QFrame):
         if not self._got_frame:
             self._got_frame = True
             self.status_changed.emit("live")
+
+        if self.detections:
+            draw_detections(image, self.detections)
+
         pixmap = QPixmap.fromImage(image)
         self.video_label.setPixmap(
             pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
