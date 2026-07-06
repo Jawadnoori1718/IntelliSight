@@ -1,0 +1,21 @@
+{
+  "name": "intellisight-frontend",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "description": "IntelliSight — dark glassmorphism web interface",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^1.23.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.3"
+  }
+}

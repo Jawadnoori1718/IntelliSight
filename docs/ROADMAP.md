@@ -15,7 +15,7 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 - [x] **Phase 2 — Backend Skeleton**
   FastAPI server, config, `/health` endpoint, virtual environment + requirements.
 
-- [ ] **Phase 3 — Frontend Shell**
+- [x] **Phase 3 — Frontend Shell**
   React + Vite app with the dark, glassmorphism layout (panels, dashboard, sidebar) — no camera yet.
 
 ## Seeing
