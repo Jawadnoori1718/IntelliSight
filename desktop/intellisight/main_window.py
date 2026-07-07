@@ -10,6 +10,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .assistant_worker import AssistantWorker
+from .widgets.assistant_panel import AssistantPanel
 from .widgets.camera_stage import CameraStage
 from .widgets.objects_panel import ObjectsPanel
 from .widgets.scene_panel import ScenePanel
@@ -69,6 +71,11 @@ class MainWindow(QMainWindow):
         self.camera_stage.ocr_status_changed.connect(self._on_ocr_status)
         self.camera_stage.scene_changed.connect(self._on_scene)
         self.camera_stage.scene_status_changed.connect(self._on_scene_status)
+
+        self.assistant = AssistantWorker()
+        self.assistant.answer_ready.connect(self._on_answer)
+        self.assistant.start()
+
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
@@ -117,11 +124,14 @@ class MainWindow(QMainWindow):
         layout.setSpacing(16)
 
         self.scene_panel = ScenePanel()
+        self.assistant_panel = AssistantPanel()
+        self.assistant_panel.ask_requested.connect(self._on_ask)
         self.objects_panel = ObjectsPanel()
         self.text_panel = TextPanel()
         self.stats_panel = StatsPanel()
 
         layout.addWidget(self.scene_panel)
+        layout.addWidget(self.assistant_panel, 3)
         layout.addWidget(self.objects_panel, 2)
         layout.addWidget(self.text_panel, 1)
         layout.addWidget(self.stats_panel)
@@ -157,6 +167,18 @@ class MainWindow(QMainWindow):
             self.text_panel.set_message("Reader ready — looking for text…")
         elif status == "error":
             self.text_panel.set_message("The text reader failed to load. Check the terminal.")
+
+    # ── chat ──
+    def _on_ask(self, question: str) -> None:
+        frame = self.camera_stage.last_frame
+        if frame is None:
+            self.assistant_panel.resolve("Turn on the camera so I can see what you're asking about.")
+            return
+        labels = [d["label"] for d in self.camera_stage.detections]
+        self.assistant.ask(question, frame, labels)
+
+    def _on_answer(self, text: str) -> None:
+        self.assistant_panel.resolve(text)
 
     def _on_scene(self, data) -> None:
         self.scene_panel.set_scene(data)
@@ -197,6 +219,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         self.camera_stage.shutdown()
+        self.assistant.stop()
         super().closeEvent(event)
 
     @staticmethod

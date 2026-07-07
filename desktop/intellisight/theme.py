@@ -125,6 +125,45 @@ QFrame#ObjRow {{
 QLabel#ObjName {{ font-size: 13px; font-weight: 600; color: {TEXT}; }}
 QLabel#ObjPct {{ font-size: 12px; color: {TEXT_DIM}; }}
 
+/* Assistant chat */
+QLineEdit#ChatInput {{
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(120, 160, 255, 0.14);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: {TEXT};
+    font-size: 13px;
+}}
+QLineEdit#ChatInput:focus {{ border-color: rgba(120, 180, 255, 0.30); }}
+QPushButton#ChatSend {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+    color: #04121e;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+}}
+QPushButton#ChatSend:hover {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4cc5fb, stop:1 #7278f2);
+}}
+QPushButton#ChatSend:disabled {{ background-color: rgba(255, 255, 255, 0.08); color: {TEXT_FAINT}; }}
+QLabel#ChatUser {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+    color: #051018;
+    border-radius: 12px;
+    padding: 8px 11px;
+    font-size: 12.5px;
+}}
+QLabel#ChatAI {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: {TEXT_DIM};
+    border-radius: 12px;
+    padding: 8px 11px;
+    font-size: 12.5px;
+}}
+
 /* Scene panel */
 QLabel#SceneStatus {{ font-size: 10px; letter-spacing: 1px; color: {ACCENT}; }}
 QLabel#SceneChip {{

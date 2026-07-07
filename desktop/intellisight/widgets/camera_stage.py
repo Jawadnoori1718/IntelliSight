@@ -41,6 +41,7 @@ class CameraStage(QFrame):
         self.scene = None
         self.detections = []
         self.text_blocks = []
+        self.last_frame = None  # latest raw BGR frame, for the assistant
         self._got_frame = False
 
         self.stack = QStackedWidget()
@@ -165,6 +166,7 @@ class CameraStage(QFrame):
             self.scene.stop()
             self.scene = None
         self.text_blocks = []
+        self.last_frame = None
 
     # ── slots ──
     def _on_frame(self, image) -> None:
@@ -185,6 +187,7 @@ class CameraStage(QFrame):
         )
 
     def _on_frame_np(self, frame) -> None:
+        self.last_frame = frame
         if self.vision is not None:
             self.vision.submit(frame)
         if self.ocr is not None:

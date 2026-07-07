@@ -113,7 +113,8 @@ outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](
 - [x] **D6** — Detected-objects panel (live scrollable list)
 - [x] **D7** — Read text (OCR) — highlights on the video + a Text panel
 - [x] **D8** — Scene understanding (Claude describes the scene)
-- [ ] D9–D12 — coming next
+- [x] **D9** — Ask questions (chat with your camera)
+- [ ] D10–D12 — coming next
 
 **Run it** *(requires Python 3.12)*:
 ```bash
