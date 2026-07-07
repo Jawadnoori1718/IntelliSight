@@ -22,7 +22,7 @@ You push after each phase, exactly like before.
 - [x] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
 - [x] **D8 — Scene understanding** — AI describes the whole scene.
 - [x] **D9 — Ask questions** — chat about what the camera sees.
-- [ ] **D10 — Voice** — speak and hear answers.
+- [x] **D10 — Voice** — speak and hear answers.
 - [ ] **D11 — Memory & timeline** — remember objects over time.
 - [ ] **D12 — Polish & package** — final visuals + a launchable Mac app.
 

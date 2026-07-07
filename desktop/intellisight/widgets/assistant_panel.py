@@ -1,4 +1,4 @@
-"""The 'Assistant' chat panel — ask questions about what the camera sees."""
+"""The 'Assistant' chat panel — ask questions (typed or spoken) about the scene."""
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 
 class AssistantPanel(QFrame):
     ask_requested = Signal(str)
+    mic_clicked = Signal()
 
     def __init__(self):
         super().__init__()
@@ -25,9 +26,20 @@ class AssistantPanel(QFrame):
         outer.setContentsMargins(16, 14, 16, 16)
         outer.setSpacing(10)
 
+        head = QHBoxLayout()
         title = QLabel("Assistant")
         title.setObjectName("PanelTitle")
-        outer.addWidget(title)
+        self.speaker = QPushButton("🔈")
+        self.speaker.setObjectName("SpeakerToggle")
+        self.speaker.setCheckable(True)
+        self.speaker.setCursor(Qt.PointingHandCursor)
+        self.speaker.setToolTip("Read answers aloud")
+        self.speaker.setFixedSize(30, 26)
+        self.speaker.toggled.connect(lambda on: self.speaker.setText("🔊" if on else "🔈"))
+        head.addWidget(title)
+        head.addStretch(1)
+        head.addWidget(self.speaker)
+        outer.addLayout(head)
 
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -44,7 +56,8 @@ class AssistantPanel(QFrame):
         outer.addWidget(self.scroll, 1)
 
         self._hint = QLabel(
-            "Ask me about what you see — “what's on my desk?”, “how many bottles?”, “read that label”."
+            "Ask me about what you see — “what's on my desk?”, “how many bottles?”, “read that label”. "
+            "Tap 🎤 to speak, 🔈 to hear answers."
         )
         self._hint.setObjectName("PanelBody")
         self._hint.setWordWrap(True)
@@ -52,6 +65,12 @@ class AssistantPanel(QFrame):
 
         row = QHBoxLayout()
         row.setSpacing(8)
+        self.mic = QPushButton("🎤")
+        self.mic.setObjectName("MicButton")
+        self.mic.setCursor(Qt.PointingHandCursor)
+        self.mic.setFixedSize(38, 38)
+        self.mic.setToolTip("Speak your question")
+        self.mic.clicked.connect(self.mic_clicked)
         self.input = QLineEdit()
         self.input.setObjectName("ChatInput")
         self.input.setPlaceholderText("Ask about what you see…")
@@ -60,15 +79,19 @@ class AssistantPanel(QFrame):
         self.send_btn.setObjectName("ChatSend")
         self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.clicked.connect(self._send)
+        row.addWidget(self.mic)
         row.addWidget(self.input, 1)
         row.addWidget(self.send_btn)
         outer.addLayout(row)
 
-    def _send(self) -> None:
-        text = self.input.text().strip()
+    # ── public API ──
+    def speaking_enabled(self) -> bool:
+        return self.speaker.isChecked()
+
+    def submit_question(self, text: str) -> None:
+        text = text.strip()
         if not text or self._pending is not None:
             return
-        self.input.clear()
         self._hint.hide()
         self._add_bubble(text, user=True)
         self._pending = self._add_bubble("…", user=False)
@@ -86,6 +109,25 @@ class AssistantPanel(QFrame):
         self.send_btn.setEnabled(True)
         self.input.setFocus()
         self._scroll_to_bottom()
+
+    def add_ai(self, text: str) -> None:
+        self._hint.hide()
+        self._add_bubble(text, user=False)
+
+    def set_recording(self, recording: bool) -> None:
+        self.mic.setText("●" if recording else "🎤")
+        self.mic.setProperty("recording", recording)
+        self.mic.style().unpolish(self.mic)
+        self.mic.style().polish(self.mic)
+        self.input.setPlaceholderText("Listening… tap ● to stop" if recording else "Ask about what you see…")
+
+    # ── internals ──
+    def _send(self) -> None:
+        text = self.input.text().strip()
+        if not text:
+            return
+        self.input.clear()
+        self.submit_question(text)
 
     def _add_bubble(self, text: str, user: bool) -> QLabel:
         bubble = QLabel(text)

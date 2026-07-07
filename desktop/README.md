@@ -47,6 +47,16 @@ Get a key at **https://console.anthropic.com/**. Without a key the app runs fine
 the "Current Scene" panel just shows how to add one. Default model is `claude-opus-4-8`;
 set `INTELLISIGHT_SCENE_MODEL=claude-haiku-4-5` in `.env` for a cheaper/faster option.
 
+### 🎙️ Voice (optional)
+
+Hearing answers works out of the box (macOS `say`) — just toggle 🔈 in the Assistant
+panel. To **speak** your questions (mic button), add offline speech-to-text:
+
+```bash
+brew install portaudio
+.venv/bin/pip install -r requirements-voice.txt
+```
+
 ---
 
 ## 🗂️ Structure

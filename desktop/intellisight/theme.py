@@ -148,6 +148,20 @@ QPushButton#ChatSend:hover {{
     background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4cc5fb, stop:1 #7278f2);
 }}
 QPushButton#ChatSend:disabled {{ background-color: rgba(255, 255, 255, 0.08); color: {TEXT_FAINT}; }}
+QPushButton#MicButton {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    font-size: 15px;
+}}
+QPushButton#MicButton:hover {{ border-color: rgba(120, 180, 255, 0.30); }}
+QPushButton#MicButton[recording="true"] {{
+    background-color: rgba(248, 113, 113, 0.18);
+    border: 1px solid rgba(248, 113, 113, 0.50);
+    color: {DANGER};
+}}
+QPushButton#SpeakerToggle {{ background-color: transparent; border: none; font-size: 14px; }}
+QPushButton#SpeakerToggle:checked {{ background-color: rgba(56, 189, 248, 0.14); border-radius: 8px; }}
 QLabel#ChatUser {{
     background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {ACCENT}, stop:1 {ACCENT_2});
     color: #051018;

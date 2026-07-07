@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
 )
 
 from .assistant_worker import AssistantWorker
+from .speech import Speech
+from .voice_input import TranscribeWorker, VoiceInput
 from .widgets.assistant_panel import AssistantPanel
 from .widgets.camera_stage import CameraStage
 from .widgets.objects_panel import ObjectsPanel
@@ -76,6 +78,11 @@ class MainWindow(QMainWindow):
         self.assistant.answer_ready.connect(self._on_answer)
         self.assistant.start()
 
+        self.speech = Speech()
+        self.voice = VoiceInput()
+        self._recording = False
+        self._transcriber = None
+
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
@@ -126,6 +133,7 @@ class MainWindow(QMainWindow):
         self.scene_panel = ScenePanel()
         self.assistant_panel = AssistantPanel()
         self.assistant_panel.ask_requested.connect(self._on_ask)
+        self.assistant_panel.mic_clicked.connect(self._on_mic)
         self.objects_panel = ObjectsPanel()
         self.text_panel = TextPanel()
         self.stats_panel = StatsPanel()
@@ -179,6 +187,45 @@ class MainWindow(QMainWindow):
 
     def _on_answer(self, text: str) -> None:
         self.assistant_panel.resolve(text)
+        if self.assistant_panel.speaking_enabled() and self.speech.available():
+            self.speech.speak(text)
+
+    # ── voice input ──
+    def _on_mic(self) -> None:
+        ok, hint = self.voice.available()
+        if not ok:
+            self.assistant_panel.add_ai(hint)
+            return
+        if not self._recording:
+            try:
+                self.voice.start()
+                self._recording = True
+                self.assistant_panel.set_recording(True)
+            except Exception:
+                self.assistant_panel.add_ai(
+                    "Couldn't access the microphone. Allow mic access in System Settings "
+                    "→ Privacy & Security → Microphone, then try again."
+                )
+        else:
+            self._recording = False
+            self.assistant_panel.set_recording(False)
+            audio = self.voice.stop()
+            if audio is None or len(audio) < 4800:  # < ~0.3s
+                self.assistant_panel.add_ai("I didn't catch that — hold the mic a little longer.")
+                return
+            self.assistant_panel.input.setPlaceholderText("Transcribing…")
+            self._transcriber = TranscribeWorker(self.voice, audio)
+            self._transcriber.transcribed.connect(self._on_transcribed)
+            self._transcriber.error.connect(self.assistant_panel.add_ai)
+            self._transcriber.start()
+
+    def _on_transcribed(self, text: str) -> None:
+        self.assistant_panel.input.setPlaceholderText("Ask about what you see…")
+        text = (text or "").strip()
+        if text:
+            self.assistant_panel.submit_question(text)
+        else:
+            self.assistant_panel.add_ai("I didn't catch that — try again.")
 
     def _on_scene(self, data) -> None:
         self.scene_panel.set_scene(data)
@@ -218,6 +265,9 @@ class MainWindow(QMainWindow):
             self.scene_panel.set_message("Waiting for the camera…")
 
     def closeEvent(self, event) -> None:
+        if self._recording:
+            self.voice.stop()
+        self.speech.stop()
         self.camera_stage.shutdown()
         self.assistant.stop()
         super().closeEvent(event)

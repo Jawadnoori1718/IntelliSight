@@ -1,0 +1,13 @@
+# Optional — voice INPUT (speaking your questions).
+#
+# Voice OUTPUT (hearing answers) works out of the box on macOS via `say`.
+# For voice input, first install the audio system library, then these packages:
+#
+#     brew install portaudio
+#     .venv/bin/pip install -r requirements-voice.txt
+#
+# sounddevice captures the microphone; faster-whisper transcribes it locally
+# (offline; downloads a small model on first use).
+
+sounddevice>=0.4
+faster-whisper>=1.0
