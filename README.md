@@ -99,23 +99,10 @@ Closer to a **futuristic operating system** than a school project:
 
 ## 📦 Project Status
 
-IntelliSight now has **two editions**:
-
-### 🖥️ Desktop Edition — *current focus*
-A **native Mac app** (PySide6) with super-accurate object **segmentation** — coloured
-outlines around everything it sees. Built in 12 phases (see **[docs/ROADMAP.md](docs/ROADMAP.md)**).
-
-- [x] **D1** — Desktop app window + dark UI shell
-- [x] **D2** — Live camera in the window
-- [x] **D3** — Accurate vision engine (YOLO11-seg on Apple GPU)
-- [x] **D4** — Segmentation overlays (outlines + labels on everything)
-- [x] **D5** — Live stats panel (FPS, inference, CPU, confidence…)
-- [x] **D6** — Detected-objects panel (live scrollable list)
-- [x] **D7** — Read text (OCR) — highlights on the video + a Text panel
-- [x] **D8** — Scene understanding (Claude describes the scene)
-- [x] **D9** — Ask questions (chat with your camera)
-- [x] **D10** — Voice (speak questions, hear answers)
-- [ ] D11–D12 — coming next
+IntelliSight is a **native Mac app** (PySide6) that does one thing well: a **focused,
+accurate, real-time object detector**. Point your camera at anything and it cleanly
+boxes and names what it's sure about — clean rounded boxes, **locked** confidence
+(no flicker), and a live list of what's in view. Fully **offline & free** (no API key).
 
 **Run it** *(requires Python 3.12)*:
 ```bash
@@ -124,11 +111,7 @@ python3.12 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ./run.sh
 ```
-See **[desktop/README.md](desktop/README.md)**.
-
-### 🌐 Web Edition (v1 — Phases 1–8, complete)
-The original React + FastAPI build (detection, animated overlays, live stats, OCR).
-Kept and working — see **[frontend/](frontend/)** + **[backend/](backend/)**.
+See **[desktop/README.md](desktop/README.md)** and the **[roadmap](docs/ROADMAP.md)**.
 
 ---
 

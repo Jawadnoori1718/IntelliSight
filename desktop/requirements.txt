@@ -1,29 +1,13 @@
 # IntelliSight Desktop — dependencies
 #
-# Phase D1 (shell) only needs the GUI toolkit. The AI stack (ultralytics,
-# easyocr, torch) is added in Phase D3 when we plug in the vision engine.
-#
-# We use PySide6-Essentials (QtCore/QtGui/QtWidgets/QtNetwork) rather than the
-# full PySide6 — it's much smaller and has everything IntelliSight needs. The
-# heavy "addons" package (QtWebEngine, Qt3D, …) isn't used here.
+# A focused, offline, real-time object detector. No API keys, no cloud.
 
+# GUI toolkit (lean; QtCore/QtGui/QtWidgets — no heavy addons)
 PySide6-Essentials>=6.7
 
-# ── Camera (Phase D2) ──
-# opencv-python provides webcam capture (cv2.VideoCapture). Same package
-# ultralytics uses, so it stays consistent when the AI stack is added in D3.
+# Webcam capture
 opencv-python>=4.9
 
-# ── Vision AI (Phase D3) ──
-# ultralytics pulls in torch/torchvision. We use a YOLO11 segmentation model
-# (accurate object outlines), auto-downloaded on first run, running on the
-# Apple GPU (MPS) when available.
+# Object detection — YOLO11 (pulls in torch/torchvision), runs on the Apple GPU
+# (MPS) when available. Model auto-downloads on first run.
 ultralytics>=8.3.0
-
-# ── Text recognition / OCR (Phase D7) ──
-# easyocr reuses the torch already installed; downloads its models on first use.
-easyocr>=1.7.0
-
-# ── AI scene understanding & chat (Phase D8) ──
-# Official Anthropic SDK — talks to Claude. Needs your ANTHROPIC_API_KEY (see .env.example).
-anthropic>=0.40

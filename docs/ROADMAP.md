@@ -7,28 +7,28 @@ IntelliSight is built in **20 small phases**. After each phase you get something
 
 ---
 
-## 🖥️ Desktop Edition — current focus
+## 🖥️ IntelliSight Desktop — a focused, accurate object detector
 
-A **native desktop app** (PySide6) with super-accurate object **segmentation**
-(coloured outlines around everything it sees). This is now the primary IntelliSight.
-You push after each phase, exactly like before.
+A **native Mac app** (PySide6) that does one thing well: point the camera at
+anything and it cleanly boxes and names what it's sure about.
 
-- [x] **D1 — Desktop app window + dark UI shell** — a real app window opens.
-- [x] **D2 — Live camera in the window** — your webcam, inside the app.
-- [x] **D3 — Accurate vision engine** — YOLO11 segmentation + Apple GPU (MPS), threaded worker.
-- [x] **D4 — Segmentation overlays** — coloured outlines + boxes + labels on everything. *(the wow)*
-- [x] **D5 — Live stats panel** — FPS, objects, people, inference, CPU.
-- [x] **D6 — Detected-objects panel** — live list with colours + confidence.
-- [x] **D7 — Read text (OCR)** — highlight text on screen + a text panel.
-- [x] **D8 — Scene understanding** — AI describes the whole scene.
-- [x] **D9 — Ask questions** — chat about what the camera sees.
-- [x] **D10 — Voice** — speak and hear answers.
-- [ ] **D11 — Memory & timeline** — remember objects over time.
-- [ ] **D12 — Polish & package** — final visuals + a launchable Mac app.
+- [x] Desktop app window + dark UI shell
+- [x] Live camera in the window
+- [x] Accurate YOLO11 detection on the Apple GPU (MPS), threaded
+- [x] Clean rounded **bounding boxes** with category colours
+- [x] **Confidence lock** — a box only shows once the model is sure, then the
+  percentage stays steady (tracking + box smoothing)
+- [x] Simple live **objects list** of what's in view
+- [x] Fully **offline & free** — no API keys, no cloud
 
----
+> *Deliberately focused:* earlier experiments with segmentation outlines, OCR,
+> scene descriptions, chat, voice and a stats dashboard were removed to keep the
+> app fast, reliable, and simple. (They're still in the git history if ever wanted.)
 
-## 🌐 Web version (v1 — Phases 1–8, complete & kept)
+## 🌐 Web version (removed)
+
+The original browser build (`frontend/` + `backend/`) has been retired in favour
+of the desktop app.
 
 *The original browser build (React + FastAPI). Superseded by the Desktop Edition
 above, but fully working and preserved.*

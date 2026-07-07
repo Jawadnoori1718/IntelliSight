@@ -1,11 +1,14 @@
-# IntelliSight — Desktop Edition 🖥️
+# IntelliSight — Desktop 🖥️
 
-A **native desktop application** (built with **PySide6 / Qt**) that turns your webcam
-into a real-time visual-intelligence assistant — accurate object **segmentation**
-(outlines around everything it sees), text reading, scene understanding and more.
+A focused, **real-time object detector** — a native Mac app (PySide6) that points
+your webcam at the world and cleanly boxes and names what it's sure about.
 
-This is the primary IntelliSight experience. (The `../frontend` + `../backend` web
-version is kept as v1.)
+- 🎯 Accurate **YOLO11** detection on the **Apple GPU (MPS)**
+- ▭ Clean rounded **bounding boxes** with category colours
+- 🔒 **Locked confidence** — a box only appears once the model is sure, and its
+  percentage then stays steady (no flicker)
+- 📋 A simple **live list** of what's in view
+- ⚡ Fully **offline & free** — no API keys, no cloud
 
 ---
 
@@ -17,45 +20,19 @@ brew install python@3.12   # once, if you don't have it
 
 ## 🚀 Quick start
 
-### One-time setup
-
 ```bash
 cd ~/Desktop/IntelliSight/desktop
 python3.12 -m venv .venv
 .venv/bin/pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
-```
-
-### Run the app
-
-```bash
 ./run.sh
 ```
 
-A dark, sleek IntelliSight window opens.
+> The first run downloads PyTorch + YOLO (a few hundred MB) and the detection
+> model (`yolo11l.pt`, ~50 MB). After that it starts fast.
 
-### 🧠 Enable AI features (optional)
-
-Scene understanding (and later chat/voice) use **Claude**. To turn them on, add your
-Anthropic API key:
-
-```bash
-cp .env.example .env        # then edit .env and paste your key
-```
-
-Get a key at **https://console.anthropic.com/**. Without a key the app runs fine —
-the "Current Scene" panel just shows how to add one. Default model is `claude-opus-4-8`;
-set `INTELLISIGHT_SCENE_MODEL=claude-haiku-4-5` in `.env` for a cheaper/faster option.
-
-### 🎙️ Voice (optional)
-
-Hearing answers works out of the box (macOS `say`) — just toggle 🔈 in the Assistant
-panel. To **speak** your questions (mic button), add offline speech-to-text:
-
-```bash
-brew install portaudio
-.venv/bin/pip install -r requirements-voice.txt
-```
+Click **Start Camera**, and IntelliSight boxes and names objects it's confident
+about, keeping a live tally on the right.
 
 ---
 
@@ -66,9 +43,15 @@ desktop/
 ├── requirements.txt
 ├── run.sh
 └── intellisight/
-    ├── app.py            # entry point (QApplication + window)
-    ├── main_window.py    # window + layout shell
-    └── theme.py          # dark neon Qt stylesheet
+    ├── app.py            # entry point
+    ├── main_window.py    # window: header, camera, objects list
+    ├── theme.py          # dark neon Qt stylesheet
+    ├── camera.py         # webcam capture (thread)
+    ├── vision.py         # YOLO11 detector
+    ├── tracker.py        # confidence-lock + box smoothing
+    ├── vision_worker.py  # detection + tracking (thread)
+    ├── overlay.py        # draws the boxes
+    └── widgets/
+        ├── camera_stage.py
+        └── objects_panel.py
 ```
-
-> 🚧 See [`../docs/ROADMAP.md`](../docs/ROADMAP.md) → *Desktop Edition* for the plan.
