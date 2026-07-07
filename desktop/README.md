@@ -32,8 +32,20 @@ python3.12 -m venv .venv
 ./run.sh
 ```
 
-A dark, sleek IntelliSight window opens. (Live camera arrives in Phase D2; accurate
-object outlines in Phase D4.)
+A dark, sleek IntelliSight window opens.
+
+### 🧠 Enable AI features (optional)
+
+Scene understanding (and later chat/voice) use **Claude**. To turn them on, add your
+Anthropic API key:
+
+```bash
+cp .env.example .env        # then edit .env and paste your key
+```
+
+Get a key at **https://console.anthropic.com/**. Without a key the app runs fine —
+the "Current Scene" panel just shows how to add one. Default model is `claude-opus-4-8`;
+set `INTELLISIGHT_SCENE_MODEL=claude-haiku-4-5` in `.env` for a cheaper/faster option.
 
 ---
 

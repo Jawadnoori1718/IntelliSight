@@ -23,3 +23,7 @@ ultralytics>=8.3.0
 # ── Text recognition / OCR (Phase D7) ──
 # easyocr reuses the torch already installed; downloads its models on first use.
 easyocr>=1.7.0
+
+# ── AI scene understanding & chat (Phase D8) ──
+# Official Anthropic SDK — talks to Claude. Needs your ANTHROPIC_API_KEY (see .env.example).
+anthropic>=0.40

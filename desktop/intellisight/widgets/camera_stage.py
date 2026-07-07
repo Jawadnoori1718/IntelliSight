@@ -16,11 +16,12 @@ from PySide6.QtWidgets import (
 from ..camera import CameraWorker
 from ..ocr_worker import OCRWorker
 from ..overlay import draw_detections, draw_text_blocks
+from ..scene_worker import SceneWorker
 from ..vision_worker import VisionWorker
 
 
 class CameraStage(QFrame):
-    """Owns the camera + vision + OCR workers and swaps between idle / live / error pages."""
+    """Owns the camera + vision + OCR + scene workers and swaps between idle / live / error pages."""
 
     status_changed = Signal(str)        # idle | starting | live | error
     detections_changed = Signal(object)  # list[detection]
@@ -28,6 +29,8 @@ class CameraStage(QFrame):
     vision_status_changed = Signal(str)  # loading | ready | error
     text_changed = Signal(object)        # list[text block]
     ocr_status_changed = Signal(str)     # loading | ready | error
+    scene_changed = Signal(object)       # {description, activity, ...}
+    scene_status_changed = Signal(str)   # no_key | thinking | ready | error
 
     def __init__(self):
         super().__init__()
@@ -35,6 +38,7 @@ class CameraStage(QFrame):
         self.worker = None
         self.vision = None
         self.ocr = None
+        self.scene = None
         self.detections = []
         self.text_blocks = []
         self._got_frame = False
@@ -130,9 +134,14 @@ class CameraStage(QFrame):
         self.ocr.ocr_ready.connect(self._on_ocr)
         self.ocr.status.connect(self.ocr_status_changed)
 
+        self.scene = SceneWorker()
+        self.scene.scene_ready.connect(self.scene_changed)
+        self.scene.status.connect(self.scene_status_changed)
+
         self.worker.start()
         self.vision.start()
         self.ocr.start()
+        self.scene.start()
 
     def stop_camera(self) -> None:
         self._stop_workers()
@@ -152,6 +161,9 @@ class CameraStage(QFrame):
         if self.ocr is not None:
             self.ocr.stop()
             self.ocr = None
+        if self.scene is not None:
+            self.scene.stop()
+            self.scene = None
         self.text_blocks = []
 
     # ── slots ──
@@ -177,6 +189,8 @@ class CameraStage(QFrame):
             self.vision.submit(frame)
         if self.ocr is not None:
             self.ocr.submit(frame)
+        if self.scene is not None:
+            self.scene.submit(frame, [d["label"] for d in self.detections])
 
     def _on_results(self, detections) -> None:
         self.detections = detections

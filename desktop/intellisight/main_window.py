@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 
 from .widgets.camera_stage import CameraStage
 from .widgets.objects_panel import ObjectsPanel
+from .widgets.scene_panel import ScenePanel
 from .widgets.stats_panel import StatsPanel
 from .widgets.text_panel import TextPanel
 
@@ -66,6 +67,8 @@ class MainWindow(QMainWindow):
         self.camera_stage.vision_status_changed.connect(self._on_vision_status)
         self.camera_stage.text_changed.connect(self._on_text)
         self.camera_stage.ocr_status_changed.connect(self._on_ocr_status)
+        self.camera_stage.scene_changed.connect(self._on_scene)
+        self.camera_stage.scene_status_changed.connect(self._on_scene_status)
         body.addWidget(self.camera_stage, 1)
         body.addWidget(self._build_sidebar())
         outer.addLayout(body, 1)
@@ -113,15 +116,12 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
 
-        scene = Panel("Current Scene")
-        self.scene_body = self._panel_body("Waiting for the camera…")
-        scene.body.addWidget(self.scene_body)
-
+        self.scene_panel = ScenePanel()
         self.objects_panel = ObjectsPanel()
         self.text_panel = TextPanel()
         self.stats_panel = StatsPanel()
 
-        layout.addWidget(scene)
+        layout.addWidget(self.scene_panel)
         layout.addWidget(self.objects_panel, 2)
         layout.addWidget(self.text_panel, 1)
         layout.addWidget(self.stats_panel)
@@ -158,6 +158,22 @@ class MainWindow(QMainWindow):
         elif status == "error":
             self.text_panel.set_message("The text reader failed to load. Check the terminal.")
 
+    def _on_scene(self, data) -> None:
+        self.scene_panel.set_scene(data)
+
+    def _on_scene_status(self, status: str) -> None:
+        if status == "no_key":
+            self.scene_panel.set_message(
+                "Add a Claude API key to enable scene understanding — copy desktop/.env.example "
+                "to desktop/.env and paste your key."
+            )
+        elif status == "thinking":
+            self.scene_panel.set_status("analysing…")
+        elif status == "ready":
+            self.scene_panel.set_status("live")
+        elif status == "error":
+            self.scene_panel.set_status("error")
+
     def _on_vision_status(self, status: str) -> None:
         if status == "loading":
             self.objects_panel.set_message("Loading the AI model… (first run downloads it — please wait)")
@@ -177,6 +193,7 @@ class MainWindow(QMainWindow):
             self.stats_panel.reset()
             self.objects_panel.set_message("Nothing detected yet.")
             self.text_panel.set_message("No text detected yet.")
+            self.scene_panel.set_message("Waiting for the camera…")
 
     def closeEvent(self, event) -> None:
         self.camera_stage.shutdown()

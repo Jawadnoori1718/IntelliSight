@@ -125,6 +125,17 @@ QFrame#ObjRow {{
 QLabel#ObjName {{ font-size: 13px; font-weight: 600; color: {TEXT}; }}
 QLabel#ObjPct {{ font-size: 12px; color: {TEXT_DIM}; }}
 
+/* Scene panel */
+QLabel#SceneStatus {{ font-size: 10px; letter-spacing: 1px; color: {ACCENT}; }}
+QLabel#SceneChip {{
+    background-color: rgba(56, 189, 248, 0.10);
+    color: #cfe8ff;
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 8px;
+    padding: 3px 9px;
+    font-size: 11px;
+}}
+
 /* Recognised text lines */
 QLabel#TextLine {{
     font-size: 12px;
