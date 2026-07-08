@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QScrollArea,
     QSpinBox,
@@ -24,6 +25,7 @@ TRIGGERS = [
 ]
 ACTIONS = [
     ("Show an alert", "alert"),
+    ("Notify me (desktop + phone)", "notify"),
     ("Play a sound", "sound"),
     ("Save a snapshot", "snapshot"),
 ]
@@ -32,9 +34,10 @@ ACTIONS = [
 class RulesDialog(QDialog):
     changed = Signal()
 
-    def __init__(self, engine, labels, parent=None):
+    def __init__(self, engine, labels, notifier, parent=None):
         super().__init__(parent)
         self.engine = engine
+        self.notifier = notifier
         self.setObjectName("RulesDialog")
         self.setWindowTitle("Rules")
         self.setModal(True)
@@ -111,8 +114,44 @@ class RulesDialog(QDialog):
 
         root.addLayout(builder)
 
+        # Notifications settings
+        settings_title = QLabel("NOTIFICATIONS")
+        settings_title.setObjectName("SettingsTitle")
+        root.addSpacing(4)
+        root.addWidget(settings_title)
+
+        self.desktop_check = QCheckBox("Show macOS notifications")
+        self.desktop_check.setChecked(self.notifier.desktop_enabled)
+        self.desktop_check.setCursor(Qt.PointingHandCursor)
+        self.desktop_check.toggled.connect(self.notifier.set_desktop)
+        root.addWidget(self.desktop_check)
+
+        phone_row = QHBoxLayout()
+        phone_row.setSpacing(8)
+        self.topic_edit = QLineEdit(self.notifier.ntfy_topic)
+        self.topic_edit.setPlaceholderText("Phone push topic (ntfy.sh) — e.g. bigbrother-7h2k")
+        self.topic_edit.textChanged.connect(self.notifier.set_topic)
+        test_btn = QPushButton("Test")
+        test_btn.setObjectName("SmallBtn")
+        test_btn.setCursor(Qt.PointingHandCursor)
+        test_btn.clicked.connect(self._test)
+        phone_row.addWidget(self.topic_edit, 1)
+        phone_row.addWidget(test_btn)
+        root.addLayout(phone_row)
+
+        help_label = QLabel(
+            "For phone alerts: install the free ntfy app, subscribe to this topic, and Big "
+            "Brother will ping your phone. Leave blank to keep it desktop-only."
+        )
+        help_label.setObjectName("SettingsHelp")
+        help_label.setWordWrap(True)
+        root.addWidget(help_label)
+
         self.trigger_combo.currentIndexChanged.connect(self._on_trigger_changed)
         self._refresh()
+
+    def _test(self) -> None:
+        self.notifier.send("Big Brother", "Test notification 🔔")
 
     # ── builder ──
     def _on_trigger_changed(self) -> None:

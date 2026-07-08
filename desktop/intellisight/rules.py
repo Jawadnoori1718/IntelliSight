@@ -17,6 +17,7 @@ TRIGGER_PHRASE = {
 }
 _ACTION_PHRASE = {
     "alert": "show an alert",
+    "notify": "notify me",
     "sound": "play a sound",
     "snapshot": "save a snapshot",
 }

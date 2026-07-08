@@ -226,6 +226,26 @@ QCheckBox::indicator {{
     background: rgba(255, 255, 255, 0.04);
 }}
 QCheckBox::indicator:checked {{ background-color: {ACCENT}; border-color: {ACCENT}; }}
+QLineEdit {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(120, 160, 255, 0.18);
+    border-radius: 9px;
+    padding: 7px 10px;
+    color: {TEXT};
+}}
+QLineEdit:focus {{ border-color: rgba(120, 180, 255, 0.42); }}
+QLabel#SettingsTitle {{ color: {TEXT_FAINT}; font-size: 10px; letter-spacing: 2px; font-weight: 700; }}
+QLabel#SettingsHelp {{ color: {TEXT_FAINT}; font-size: 11px; }}
+QPushButton#SmallBtn {{
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(120, 160, 255, 0.20);
+    border-radius: 8px;
+    padding: 7px 16px;
+    color: {TEXT_DIM};
+    font-size: 12px;
+    font-weight: 600;
+}}
+QPushButton#SmallBtn:hover {{ border-color: rgba(120, 180, 255, 0.40); color: {TEXT}; }}
 """
 
 

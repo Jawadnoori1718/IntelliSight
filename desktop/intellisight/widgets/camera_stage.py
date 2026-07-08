@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 from ..brandmark import BrandMark
 from ..camera import CameraWorker
 from ..events import EventDetector
+from ..notifications import Notifier
 from ..overlay import draw_detections, draw_zone
 from ..rules import RulesEngine
 from ..vision_worker import VisionWorker
@@ -114,6 +115,7 @@ class CameraStage(QFrame):
         self.zone_count = 0
         self.event_detector = EventDetector()
         self.rules_engine = RulesEngine()
+        self.notifier = Notifier()
         self._last_image = None
         self._got_frame = False
 
@@ -317,7 +319,7 @@ class CameraStage(QFrame):
 
     # ── rules ──
     def _open_rules(self) -> None:
-        dialog = RulesDialog(self.rules_engine, self._known_labels(), self)
+        dialog = RulesDialog(self.rules_engine, self._known_labels(), self.notifier, self)
         dialog.changed.connect(self._update_rules_button)
         dialog.exec()
         self._update_rules_button()
@@ -340,6 +342,9 @@ class CameraStage(QFrame):
         self.event_feed.add({"type": "rule", "label": f"⚡ {text}"})
         if rule.action == "alert":
             self._show_toast(f"⚡  {text}")
+        elif rule.action == "notify":
+            self.notifier.send("Big Brother", text)
+            self._show_toast(f"🔔  {text}")
         elif rule.action == "sound":
             self._play_sound()
         elif rule.action == "snapshot":
