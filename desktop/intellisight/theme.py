@@ -145,6 +145,87 @@ QPushButton#ZoneClear {{
     letter-spacing: 0.5px;
 }}
 QPushButton#ZoneClear:hover {{ background-color: rgba(251, 191, 36, 0.18); }}
+
+/* ── Rules button (bottom-left) + toast ── */
+QPushButton#RulesButton {{
+    background-color: rgba(8, 12, 20, 0.62);
+    border: 1px solid rgba(129, 140, 248, 0.45);
+    color: #a5b4fc;
+    border-radius: 14px;
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}}
+QPushButton#RulesButton:hover {{ background-color: rgba(129, 140, 248, 0.18); }}
+QLabel#Toast {{
+    background-color: rgba(99, 102, 241, 0.92);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+}}
+
+/* ── Rules dialog ── */
+QDialog#RulesDialog {{ background-color: {BG}; }}
+QLabel#RulesHeader {{ font-size: 21px; font-weight: 700; color: #ffffff; }}
+QLabel#RulesSub {{ color: {TEXT_DIM}; font-size: 13px; }}
+QLabel#RuleWord {{ color: {TEXT_DIM}; font-size: 13px; font-weight: 700; }}
+QFrame#RuleItem {{
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+}}
+QLabel#RuleDesc {{ color: {TEXT}; font-size: 13px; }}
+QLabel#RulesEmpty {{ color: {TEXT_FAINT}; font-size: 13px; }}
+QComboBox, QSpinBox {{
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(120, 160, 255, 0.18);
+    border-radius: 9px;
+    padding: 7px 10px;
+    color: {TEXT};
+    min-height: 18px;
+}}
+QComboBox:focus, QSpinBox:focus {{ border-color: rgba(120, 180, 255, 0.42); }}
+QComboBox::drop-down {{ border: none; width: 20px; }}
+QComboBox QAbstractItemView {{
+    background-color: #0b1220;
+    color: {TEXT};
+    selection-background-color: rgba(56, 189, 248, 0.30);
+    border: 1px solid rgba(120, 160, 255, 0.20);
+    outline: none;
+}}
+QPushButton#AddRuleBtn {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+    color: #04121e;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+}}
+QPushButton#AddRuleBtn:hover {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4cc5fb, stop:1 #7278f2);
+}}
+QPushButton#RemoveRuleBtn {{
+    background-color: transparent;
+    color: {TEXT_DIM};
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+}}
+QPushButton#RemoveRuleBtn:hover {{ color: {DANGER}; border-color: rgba(248, 113, 113, 0.40); }}
+QCheckBox {{ color: {TEXT}; spacing: 8px; }}
+QCheckBox::indicator {{
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+}}
+QCheckBox::indicator:checked {{ background-color: {ACCENT}; border-color: {ACCENT}; }}
 """
 
 

@@ -8,6 +8,7 @@ EVENT_HEX = {
     "appeared": "#34d399",     # green
     "disappeared": "#f87171",  # red
     "lingered": "#fbbf24",     # amber
+    "rule": "#818cf8",         # indigo — a rule fired
 }
 EVENT_VERB = {
     "appeared": "appeared",
@@ -39,8 +40,8 @@ class _Row(QWidget):
         if color != self._color:
             self._color = color
             self.dot.setStyleSheet(f"background-color: {color}; border-radius: 4px;")
-        verb = EVENT_VERB.get(item["type"], item["type"])
-        self.text.setText(f"{item['label']} {verb}")
+        verb = EVENT_VERB.get(item["type"], "")
+        self.text.setText(f"{item['label']} {verb}".strip())
         self.time.setText(item["time"])
 
 

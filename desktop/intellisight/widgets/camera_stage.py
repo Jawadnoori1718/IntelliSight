@@ -6,11 +6,15 @@ a centered message. The overlays are children of the stage (not in a layout) so
 they can sit on top of the video; they're repositioned on every resize.
 """
 
+import subprocess
 import time
+from datetime import datetime
+from pathlib import Path
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -25,9 +29,11 @@ from ..brandmark import BrandMark
 from ..camera import CameraWorker
 from ..events import EventDetector
 from ..overlay import draw_detections, draw_zone
+from ..rules import RulesEngine
 from ..vision_worker import VisionWorker
 from .event_feed import EventFeed
 from .objects_overlay import ObjectsOverlay
+from .rules_dialog import RulesDialog
 
 MARGIN = 20  # gap between the floating overlays and the video edges
 MIN_ZONE = 0.03  # a drag smaller than this (a click) clears the zone instead
@@ -107,6 +113,8 @@ class CameraStage(QFrame):
         self.zone = None        # (x1, y1, x2, y2) normalised, or None
         self.zone_count = 0
         self.event_detector = EventDetector()
+        self.rules_engine = RulesEngine()
+        self._last_image = None
         self._got_frame = False
 
         self.stack = QStackedWidget()
@@ -196,11 +204,26 @@ class CameraStage(QFrame):
         # Detected-objects card (top-right, under the pill)
         self.objects = ObjectsOverlay(self)
 
+        # Rules button (bottom-left)
+        self.rules_btn = QPushButton("⚙  Rules", self)
+        self.rules_btn.setObjectName("RulesButton")
+        self.rules_btn.setCursor(Qt.PointingHandCursor)
+        self.rules_btn.clicked.connect(self._open_rules)
+
         # Stop button (bottom-center)
         self.stop_btn = QPushButton("■  Stop", self)
         self.stop_btn.setObjectName("StopFloat")
         self.stop_btn.setCursor(Qt.PointingHandCursor)
         self.stop_btn.clicked.connect(self.stop_camera)
+
+        # Toast banner (top-center, shown briefly when a rule fires)
+        self.toast = QLabel("", self)
+        self.toast.setObjectName("Toast")
+        self.toast.setAlignment(Qt.AlignCenter)
+        self.toast.hide()
+        self._toast_timer = QTimer(self)
+        self._toast_timer.setSingleShot(True)
+        self._toast_timer.timeout.connect(self.toast.hide)
 
         # Zone hint / clear (bottom-center, just above Stop)
         self.zone_hint = QLabel("⬚  Drag on the video to draw a counting zone", self)
@@ -210,8 +233,11 @@ class CameraStage(QFrame):
         self.clear_zone_btn.setCursor(Qt.PointingHandCursor)
         self.clear_zone_btn.clicked.connect(lambda: self._on_zone_updated(None))
 
-        self._overlays = [self.brand, self.event_feed, self.pill, self.objects, self.stop_btn]
+        self._overlays = [
+            self.brand, self.event_feed, self.pill, self.objects, self.rules_btn, self.stop_btn
+        ]
         self._zone_controls = [self.zone_hint, self.clear_zone_btn]
+        self._update_rules_button()
 
     def _show_overlays(self, visible: bool) -> None:
         for widget in self._overlays:
@@ -224,6 +250,7 @@ class CameraStage(QFrame):
         else:
             for widget in self._zone_controls:
                 widget.setVisible(False)
+            self.toast.hide()
 
     def _position_overlays(self) -> None:
         w, h = self.width(), self.height()
@@ -245,6 +272,9 @@ class CameraStage(QFrame):
 
         self.stop_btn.adjustSize()
         self.stop_btn.move((w - self.stop_btn.width()) // 2, h - self.stop_btn.height() - MARGIN)
+
+        self.rules_btn.adjustSize()
+        self.rules_btn.move(MARGIN, h - self.rules_btn.height() - MARGIN)
 
         above_stop = h - self.stop_btn.height() - MARGIN - 10
         self.zone_hint.adjustSize()
@@ -285,6 +315,59 @@ class CameraStage(QFrame):
         self.zone_hint.setVisible(live and self.zone is None)
         self.clear_zone_btn.setVisible(live and self.zone is not None)
 
+    # ── rules ──
+    def _open_rules(self) -> None:
+        dialog = RulesDialog(self.rules_engine, self._known_labels(), self)
+        dialog.changed.connect(self._update_rules_button)
+        dialog.exec()
+        self._update_rules_button()
+
+    def _known_labels(self) -> list:
+        common = ["person", "phone", "laptop", "dog", "cat", "cup", "bottle", "backpack", "keys", "book"]
+        seen = [det["label"].lower() for det in self.detections]
+        return [name.title() for name in sorted(set(common + seen))]
+
+    def _update_rules_button(self) -> None:
+        count = len(self.rules_engine.rules)
+        self.rules_btn.setText(f"⚙  Rules  ·  {count}" if count else "⚙  Rules")
+        self.rules_btn.adjustSize()
+        if self.brand.isVisible():
+            self._position_overlays()
+
+    def _fire_rule(self, firing) -> None:
+        rule = firing["rule"]
+        text = firing["text"]
+        self.event_feed.add({"type": "rule", "label": f"⚡ {text}"})
+        if rule.action == "alert":
+            self._show_toast(f"⚡  {text}")
+        elif rule.action == "sound":
+            self._play_sound()
+        elif rule.action == "snapshot":
+            self._save_snapshot()
+
+    def _show_toast(self, text: str) -> None:
+        self.toast.setText(text)
+        self.toast.adjustSize()
+        self.toast.move((self.width() - self.toast.width()) // 2, MARGIN)
+        self.toast.show()
+        self.toast.raise_()
+        self._toast_timer.start(2600)
+
+    def _play_sound(self) -> None:
+        try:
+            subprocess.Popen(["afplay", "/System/Library/Sounds/Glass.aiff"])
+        except Exception:
+            QApplication.beep()
+
+    def _save_snapshot(self) -> None:
+        if self._last_image is None:
+            return
+        folder = Path.home() / "BigBrother Snapshots"
+        folder.mkdir(parents=True, exist_ok=True)
+        name = f"snapshot-{datetime.now().strftime('%Y%m%d-%H%M%S')}.png"
+        if self._last_image.save(str(folder / name)):
+            self._show_toast("📸  Snapshot saved")
+
     # ── status pill ──
     def _set_pill(self, state: str, text: str) -> None:
         self.pill.setText(text)
@@ -301,8 +384,11 @@ class CameraStage(QFrame):
         self.detections = []
         self.zone = None
         self.zone_count = 0
+        self._last_image = None
         self.event_detector.reset()
+        self.rules_engine.reset_state()
         self.event_feed.clear()
+        self.toast.hide()
         self.objects.set_message("Warming up…")
         self._set_pill("connecting", "● CONNECTING")
         self.status_changed.emit("starting")
@@ -350,6 +436,7 @@ class CameraStage(QFrame):
             draw_detections(image, self.detections)
         if self.zone:
             draw_zone(image, self.zone, self.zone_count)
+        self._last_image = image
 
         pixmap = QPixmap.fromImage(image)
         scaled = pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -366,8 +453,14 @@ class CameraStage(QFrame):
         self.detections = detections
         self.objects.update(detections)
         self._recompute_zone_count()
-        for event in self.event_detector.update(detections, time.monotonic()):
+
+        now = time.monotonic()
+        events = self.event_detector.update(detections, now)
+        for event in events:
             self.event_feed.add(event)
+        for firing in self.rules_engine.evaluate(events, detections, self.zone, self.zone_count, now):
+            self._fire_rule(firing)
+
         self._position_overlays()
         self.detections_changed.emit(detections)
 
