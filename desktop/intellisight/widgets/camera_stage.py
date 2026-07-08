@@ -33,6 +33,7 @@ from ..overlay import draw_detections, draw_zone
 from ..rules import RulesEngine
 from ..storage import Timeline
 from ..vision_worker import VisionWorker
+from ..webhooks import send_webhook
 from .event_feed import EventFeed
 from .objects_overlay import ObjectsOverlay
 from .rules_dialog import RulesDialog
@@ -371,6 +372,16 @@ class CameraStage(QFrame):
             self._play_sound()
         elif rule.action == "snapshot":
             snapshot = self._save_snapshot()
+        elif rule.action == "webhook":
+            send_webhook(rule.url, {
+                "app": "Big Brother",
+                "text": text,
+                "trigger": rule.trigger,
+                "object": rule.obj or "anything",
+                "rule": rule.describe(),
+                "time": datetime.now().isoformat(timespec="seconds"),
+            })
+            self._show_toast(f"🔌  {text}")
         self.timeline.add("rule", text, None, snapshot)
 
     def _show_toast(self, text: str) -> None:

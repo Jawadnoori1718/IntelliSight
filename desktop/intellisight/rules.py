@@ -20,6 +20,7 @@ _ACTION_PHRASE = {
     "notify": "notify me",
     "sound": "play a sound",
     "snapshot": "save a snapshot",
+    "webhook": "send a webhook",
 }
 _FIRE_VERB = {
     "appears": "appeared",
@@ -32,12 +33,13 @@ _EVENT_TRIGGER = {"appeared": "appears", "disappeared": "disappears", "lingered"
 
 
 class Rule:
-    def __init__(self, rule_id, obj, trigger, action, threshold=2, enabled=True):
+    def __init__(self, rule_id, obj, trigger, action, threshold=2, url="", enabled=True):
         self.id = rule_id
         self.obj = obj            # lowercased label, or None = anything
         self.trigger = trigger
         self.action = action
         self.threshold = threshold
+        self.url = url            # webhook target, for the 'webhook' action
         self.enabled = enabled
         self.last_fired = 0.0
 
@@ -61,9 +63,9 @@ class RulesEngine:
         self._prev_in_zone = {}
         self._prev_count = 0
 
-    def add(self, obj, trigger, action, threshold=2) -> Rule:
+    def add(self, obj, trigger, action, threshold=2, url="") -> Rule:
         self._next_id += 1
-        rule = Rule(self._next_id, obj, trigger, action, threshold)
+        rule = Rule(self._next_id, obj, trigger, action, threshold, url)
         self.rules.append(rule)
         return rule
 

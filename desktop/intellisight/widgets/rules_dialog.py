@@ -1,5 +1,7 @@
 """A dialog to build, list, toggle, and delete rules."""
 
+from datetime import datetime
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -16,6 +18,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..webhooks import send_webhook
+
 TRIGGERS = [
     ("Appears", "appears"),
     ("Disappears", "disappears"),
@@ -28,6 +32,7 @@ ACTIONS = [
     ("Notify me (desktop + phone)", "notify"),
     ("Play a sound", "sound"),
     ("Save a snapshot", "snapshot"),
+    ("Send a webhook", "webhook"),
 ]
 
 
@@ -112,6 +117,24 @@ class RulesDialog(QDialog):
         row2.addWidget(add_btn)
         builder.addLayout(row2)
 
+        url_row = QHBoxLayout()
+        url_row.setSpacing(8)
+        self._url_word = QLabel("URL")
+        self._url_word.setObjectName("RuleWord")
+        self.url_edit = QLineEdit()
+        self.url_edit.setPlaceholderText("https://…  (Home Assistant, Slack, your script)")
+        url_test = QPushButton("Test")
+        url_test.setObjectName("SmallBtn")
+        url_test.setCursor(Qt.PointingHandCursor)
+        url_test.clicked.connect(self._test_webhook)
+        url_row.addWidget(self._url_word)
+        url_row.addWidget(self.url_edit, 1)
+        url_row.addWidget(url_test)
+        builder.addLayout(url_row)
+        self._url_widgets = [self._url_word, self.url_edit, url_test]
+        for widget in self._url_widgets:
+            widget.hide()
+
         root.addLayout(builder)
 
         # Notifications settings
@@ -148,10 +171,23 @@ class RulesDialog(QDialog):
         root.addWidget(help_label)
 
         self.trigger_combo.currentIndexChanged.connect(self._on_trigger_changed)
+        self.action_combo.currentIndexChanged.connect(self._on_action_changed)
         self._refresh()
 
     def _test(self) -> None:
         self.notifier.send("Big Brother", "Test notification 🔔")
+
+    def _on_action_changed(self) -> None:
+        is_webhook = self.action_combo.currentData() == "webhook"
+        for widget in self._url_widgets:
+            widget.setVisible(is_webhook)
+
+    def _test_webhook(self) -> None:
+        send_webhook(
+            self.url_edit.text(),
+            {"app": "Big Brother", "text": "Test webhook",
+             "time": datetime.now().isoformat(timespec="seconds")},
+        )
 
     # ── builder ──
     def _on_trigger_changed(self) -> None:
@@ -166,7 +202,8 @@ class RulesDialog(QDialog):
         obj = None if (not text or text.lower() == "anything") else text.lower()
         if trigger == "count_over":
             obj = None
-        self.engine.add(obj, trigger, action, self.threshold_spin.value())
+        url = self.url_edit.text().strip() if action == "webhook" else ""
+        self.engine.add(obj, trigger, action, self.threshold_spin.value(), url)
         self._refresh()
         self.changed.emit()
 
