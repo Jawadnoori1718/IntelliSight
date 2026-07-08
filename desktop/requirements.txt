@@ -1,4 +1,4 @@
-# IntelliSight Desktop — dependencies
+# Big Brother Desktop — dependencies
 #
 # A focused, offline, real-time object detector. No API keys, no cloud.
 

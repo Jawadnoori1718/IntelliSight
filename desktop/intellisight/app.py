@@ -1,4 +1,4 @@
-"""IntelliSight Desktop — application entry point.
+"""Big Brother Desktop — application entry point.
 
 Run it with:
     python -m intellisight.app
@@ -18,7 +18,7 @@ from .theme import apply_theme
 def create_app():
     """Create the QApplication and main window (no event loop started yet)."""
     app = QApplication.instance() or QApplication(sys.argv)
-    app.setApplicationName("IntelliSight")
+    app.setApplicationName("Big Brother")
     app.setWindowIcon(make_icon())
     apply_theme(app)
     window = MainWindow()

@@ -1,3 +1,3 @@
-"""IntelliSight Desktop — a native visual-intelligence app built with PySide6."""
+"""Big Brother Desktop — a native visual-intelligence app built with PySide6."""
 
-__version__ = "1.3.0"
+__version__ = "2.0.0"

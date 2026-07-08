@@ -1,15 +1,21 @@
-# IntelliSight — Desktop 🖥️
+# Big Brother — Desktop 👁️
 
-A focused, **real-time object detector** — a native Mac app (PySide6) that points
-your webcam at the world and cleanly boxes and names what it's sure about.
+**Always watching.** A native Mac app (PySide6) that turns your webcam into a
+real-time watcher — it cleanly boxes and names what it sees, and (as it grows)
+lets your space *react* to what happens in it.
 
-- 🎯 **Open-vocabulary** detection (**YOLO-World**) on the **Apple GPU (MPS)** —
+- 👁️ **Open-vocabulary** detection (**YOLO-World**) on the **Apple GPU (MPS)** —
   it finds the objects *you* name (pen, keys, headphones, mug…), not a fixed list of 80
 - ▭ Clean rounded **bounding boxes** with category colours
 - 🔒 **Locked confidence** — a box only appears once the model is sure, and its
   percentage then stays steady (no flicker)
-- 📋 A simple **live list** of what's in view
-- ⚡ Fully **offline & free** — no API keys, no cloud
+- 🖥️ **Camera-first UI** — the video fills the screen; a floating glass card lists
+  what's in view
+- ⚡ Fully **offline & free** for detection — no API keys, no cloud
+
+> **Roadmap:** Big Brother is growing into a *programmable perception* platform —
+> draw zones, count things, and set rules like *"when the camera sees X, do Y"*,
+> with notifications, a searchable timeline, and smart Claude-powered checks.
 
 ---
 
@@ -29,11 +35,11 @@ python3.12 -m venv .venv
 ./run.sh
 ```
 
-> The first run downloads PyTorch + YOLO (a few hundred MB) and the detection
-> model (`yolo11l.pt`, ~50 MB). After that it starts fast.
+> The first run downloads PyTorch + YOLO-World (a few hundred MB). After that it
+> starts fast.
 
-Click **Start Camera**, and IntelliSight boxes and names objects it's confident
-about, keeping a live tally on the right.
+Click **Start Camera**, and Big Brother boxes and names objects it's confident
+about, listing them in the floating card.
 
 ### ✏️ Add your own objects
 
@@ -51,14 +57,15 @@ desktop/
 ├── run.sh
 └── intellisight/
     ├── app.py            # entry point
-    ├── main_window.py    # window: header, camera, objects list
-    ├── theme.py          # dark neon Qt stylesheet
+    ├── main_window.py    # full-bleed camera window
+    ├── brandmark.py      # the all-seeing-eye logo (vector)
+    ├── theme.py          # dark, camera-first Qt stylesheet
     ├── camera.py         # webcam capture (thread)
-    ├── vision.py         # YOLO11 detector
+    ├── vision.py         # YOLO-World open-vocabulary detector
     ├── tracker.py        # confidence-lock + box smoothing
     ├── vision_worker.py  # detection + tracking (thread)
     ├── overlay.py        # draws the boxes
     └── widgets/
-        ├── camera_stage.py
-        └── objects_panel.py
+        ├── camera_stage.py     # video + floating glass overlays
+        └── objects_overlay.py  # the "Detected" card
 ```

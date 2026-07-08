@@ -2,13 +2,13 @@
 
 Unlike a normal YOLO model (locked to 80 fixed classes), YOLO-World detects
 whatever words you give it. Edit VOCABULARY below to add or remove the things
-you want IntelliSight to look for. Returns normalised bounding boxes (0..1).
+you want Big Brother to look for. Returns normalised bounding boxes (0..1).
 """
 
 DEFAULT_MODEL = "yolov8x-worldv2.pt"  # open-vocabulary; auto-downloaded (~140 MB)
 DEFAULT_CONF = 0.10                   # low floor; the Tracker confirms the sure ones
 
-# ── The things IntelliSight looks for. ──
+# ── The things Big Brother looks for. ──
 # A broad list of everyday objects. Add or remove words freely.
 # Note: a bigger list covers more, but if you see two similar things get mixed up
 # (e.g. pen vs pencil), a shorter, more specific list is more accurate.

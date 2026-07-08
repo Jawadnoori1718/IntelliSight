@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch the IntelliSight desktop app.
+# Launch the Big Brother desktop app.
 #
 # Usage:  ./run.sh
 set -e

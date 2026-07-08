@@ -1,4 +1,4 @@
-"""Minimal, camera-first dark theme for IntelliSight (Qt Style Sheets).
+"""Minimal, camera-first dark theme for Big Brother (Qt Style Sheets).
 
 The video fills the window; everything else is a translucent 'glass' overlay
 floating on top of it. Only the color constants below are usable inside the
@@ -116,5 +116,5 @@ QPushButton#StopFloat:hover {{ background-color: rgba(248, 113, 113, 0.20); }}
 
 
 def apply_theme(app):
-    """Apply the IntelliSight dark theme to a QApplication."""
+    """Apply the Big Brother dark theme to a QApplication."""
     app.setStyleSheet(STYLE)

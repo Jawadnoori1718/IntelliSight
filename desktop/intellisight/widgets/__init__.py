@@ -1,1 +1,1 @@
-"""Reusable UI widgets for the IntelliSight desktop app."""
+"""Reusable UI widgets for the Big Brother desktop app."""

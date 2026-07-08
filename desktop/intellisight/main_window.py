@@ -14,7 +14,7 @@ from .widgets.camera_stage import CameraStage
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("IntelliSight")
+        self.setWindowTitle("Big Brother")
         self.setWindowIcon(make_icon())
         self.resize(1280, 800)
         self.setMinimumSize(900, 600)
