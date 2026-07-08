@@ -6,6 +6,8 @@ a centered message. The overlays are children of the stage (not in a layout) so
 they can sit on top of the video; they're repositioned on every resize.
 """
 
+import time
+
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
@@ -21,8 +23,10 @@ from PySide6.QtWidgets import (
 
 from ..brandmark import BrandMark
 from ..camera import CameraWorker
+from ..events import EventDetector
 from ..overlay import draw_detections, draw_zone
 from ..vision_worker import VisionWorker
+from .event_feed import EventFeed
 from .objects_overlay import ObjectsOverlay
 
 MARGIN = 20  # gap between the floating overlays and the video edges
@@ -102,6 +106,7 @@ class CameraStage(QFrame):
         self.detections = []
         self.zone = None        # (x1, y1, x2, y2) normalised, or None
         self.zone_count = 0
+        self.event_detector = EventDetector()
         self._got_frame = False
 
         self.stack = QStackedWidget()
@@ -185,6 +190,9 @@ class CameraStage(QFrame):
         self.pill.setObjectName("LiveOverlay")
         self.pill.setProperty("state", "connecting")
 
+        # Activity feed (top-left, under the brand)
+        self.event_feed = EventFeed(self)
+
         # Detected-objects card (top-right, under the pill)
         self.objects = ObjectsOverlay(self)
 
@@ -202,7 +210,7 @@ class CameraStage(QFrame):
         self.clear_zone_btn.setCursor(Qt.PointingHandCursor)
         self.clear_zone_btn.clicked.connect(lambda: self._on_zone_updated(None))
 
-        self._overlays = [self.brand, self.pill, self.objects, self.stop_btn]
+        self._overlays = [self.brand, self.event_feed, self.pill, self.objects, self.stop_btn]
         self._zone_controls = [self.zone_hint, self.clear_zone_btn]
 
     def _show_overlays(self, visible: bool) -> None:
@@ -222,6 +230,9 @@ class CameraStage(QFrame):
 
         self.brand.adjustSize()
         self.brand.move(MARGIN, MARGIN)
+
+        self.event_feed.adjustSize()
+        self.event_feed.move(MARGIN, MARGIN + self.brand.height() + 12)
 
         self.pill.adjustSize()
         self.pill.move(w - self.pill.width() - MARGIN, MARGIN)
@@ -290,6 +301,8 @@ class CameraStage(QFrame):
         self.detections = []
         self.zone = None
         self.zone_count = 0
+        self.event_detector.reset()
+        self.event_feed.clear()
         self.objects.set_message("Warming up…")
         self._set_pill("connecting", "● CONNECTING")
         self.status_changed.emit("starting")
@@ -353,6 +366,8 @@ class CameraStage(QFrame):
         self.detections = detections
         self.objects.update(detections)
         self._recompute_zone_count()
+        for event in self.event_detector.update(detections, time.monotonic()):
+            self.event_feed.add(event)
         self._position_overlays()
         self.detections_changed.emit(detections)
 

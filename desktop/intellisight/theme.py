@@ -100,6 +100,17 @@ QLabel#ObjRowPct {{
 }}
 QLabel#ObjEmpty {{ color: {TEXT_FAINT}; font-size: 12px; }}
 
+/* ── Activity feed (top-left) ── */
+QFrame#EventFeed {{
+    background-color: rgba(8, 12, 20, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+}}
+QLabel#EventTitle {{ color: {TEXT_DIM}; font-size: 10px; letter-spacing: 2.5px; font-weight: 700; }}
+QLabel#EventText {{ color: {TEXT}; font-size: 12.5px; font-weight: 500; }}
+QLabel#EventTime {{ color: {TEXT_FAINT}; font-size: 10px; font-family: "Menlo", "SF Mono", monospace; }}
+QLabel#EventEmpty {{ color: {TEXT_FAINT}; font-size: 12px; }}
+
 /* ── Floating stop button (bottom-center) ── */
 QPushButton#StopFloat {{
     background-color: rgba(8, 12, 20, 0.62);

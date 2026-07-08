@@ -87,6 +87,7 @@ class Tracker:
 
         confirmed = [
             {
+                "id": t.id,
                 "label": t.label,
                 "category": t.category,
                 "confidence": round(t.conf, 3),
