@@ -3,7 +3,8 @@
 A focused, **real-time object detector** — a native Mac app (PySide6) that points
 your webcam at the world and cleanly boxes and names what it's sure about.
 
-- 🎯 Accurate **YOLO11** detection on the **Apple GPU (MPS)**
+- 🎯 **Open-vocabulary** detection (**YOLO-World**) on the **Apple GPU (MPS)** —
+  it finds the objects *you* name (pen, keys, headphones, mug…), not a fixed list of 80
 - ▭ Clean rounded **bounding boxes** with category colours
 - 🔒 **Locked confidence** — a box only appears once the model is sure, and its
   percentage then stays steady (no flicker)
@@ -33,6 +34,12 @@ python3.12 -m venv .venv
 
 Click **Start Camera**, and IntelliSight boxes and names objects it's confident
 about, keeping a live tally on the right.
+
+### ✏️ Add your own objects
+
+Open **`intellisight/vision.py`** and edit the **`VOCABULARY`** list — add any word
+(e.g. `"stethoscope"`, `"rubik's cube"`, `"guitar"`) and it'll start looking for it.
+No retraining needed.
 
 ---
 

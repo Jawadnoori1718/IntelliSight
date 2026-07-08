@@ -1,43 +1,65 @@
-"""Accurate object detection (Ultralytics YOLO11).
+"""Open-vocabulary object detection (Ultralytics YOLO-World).
 
-Returns, for every object it sees: a label, category, confidence and a normalised
-bounding box (0..1). Boxes only — clean and fast; the Tracker decides which ones
-are sure enough to show.
+Unlike a normal YOLO model (locked to 80 fixed classes), YOLO-World detects
+whatever words you give it. Edit VOCABULARY below to add or remove the things
+you want IntelliSight to look for. Returns normalised bounding boxes (0..1).
 """
 
-DEFAULT_MODEL = "yolo11l.pt"  # large detection model — accurate; auto-downloaded
-DEFAULT_CONF = 0.30           # candidates; the Tracker confirms the confident ones
+DEFAULT_MODEL = "yolov8x-worldv2.pt"  # open-vocabulary; auto-downloaded (~140 MB)
+DEFAULT_CONF = 0.10                   # low floor; the Tracker confirms the sure ones
 
-_TECH = {"laptop", "mouse", "keyboard", "cell phone", "tv", "remote"}
-_FOOD = {
-    "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl",
-    "banana", "apple", "sandwich", "orange", "broccoli", "carrot",
-    "hot dog", "pizza", "donut", "cake",
+# ── The things IntelliSight looks for. Add your own words here! ──
+VOCABULARY = [
+    "person",
+    "pen", "pencil", "marker", "highlighter", "eraser", "ruler", "scissors", "stapler",
+    "key", "wallet", "glasses", "sunglasses", "watch", "ring",
+    "headphones", "earbuds", "airpods", "phone", "laptop", "tablet",
+    "computer mouse", "keyboard", "monitor", "remote control", "charger", "cable",
+    "power bank", "usb drive", "camera",
+    "cup", "mug", "glass", "bottle", "water bottle", "can", "coffee cup",
+    "fork", "knife", "spoon", "plate", "bowl",
+    "banana", "apple", "orange",
+    "book", "notebook", "paper", "envelope",
+    "sneaker", "shoe", "sandal", "sock", "hat", "cap", "backpack", "bag", "handbag", "umbrella",
+    "chair", "table", "lamp", "clock", "plant", "pillow", "toy", "ball",
+    "toothbrush", "toothpaste", "comb", "razor", "lighter", "battery", "tissue box",
+]
+
+_TECH = {
+    "laptop", "computer mouse", "keyboard", "phone", "tablet", "monitor", "tv",
+    "remote control", "headphones", "earbuds", "airpods", "charger", "cable",
+    "power bank", "usb drive", "camera",
 }
-_FURNITURE = {"chair", "couch", "potted plant", "bed", "dining table", "toilet", "bench"}
-_OVERRIDES = {"tv": "TV", "cell phone": "Phone", "dining table": "Table"}
+_FOOD = {
+    "bottle", "water bottle", "cup", "mug", "glass", "can", "coffee cup", "wine glass",
+    "fork", "knife", "spoon", "plate", "bowl", "banana", "apple", "orange",
+}
+_FURNITURE = {"chair", "table", "lamp", "plant", "pillow", "bed", "couch", "sofa"}
 
 
 def _categorize(label: str) -> str:
-    if label == "person":
+    low = label.lower()
+    if low == "person":
         return "person"
-    if label in _TECH:
+    if low in _TECH:
         return "tech"
-    if label in _FOOD:
+    if low in _FOOD:
         return "food"
-    if label in _FURNITURE:
+    if low in _FURNITURE:
         return "furniture"
     return "object"
 
 
 def _pretty(label: str) -> str:
-    return _OVERRIDES.get(label, label.title())
+    return label.title()
 
 
 class Detector:
-    def __init__(self, model_name: str = DEFAULT_MODEL, conf: float = DEFAULT_CONF, device: str | None = None):
+    def __init__(self, model_name: str = DEFAULT_MODEL, conf: float = DEFAULT_CONF,
+                 classes=None, device: str | None = None):
         self.model_name = model_name
         self.conf = conf
+        self.classes = list(classes) if classes else list(VOCABULARY)
         self.device = device
         self._model = None
 
@@ -58,6 +80,7 @@ class Detector:
         from ultralytics import YOLO
 
         self._model = YOLO(self.model_name)
+        self._model.set_classes(self.classes)
         self.device = self._pick_device()
         dummy = np.zeros((320, 320, 3), dtype=np.uint8)
         try:

@@ -14,7 +14,8 @@ anything and it cleanly boxes and names what it's sure about.
 
 - [x] Desktop app window + dark UI shell
 - [x] Live camera in the window
-- [x] Accurate YOLO11 detection on the Apple GPU (MPS), threaded
+- [x] **Open-vocabulary** detection (YOLO-World) on the Apple GPU (MPS), threaded —
+  detects the objects you name (editable `VOCABULARY` list), not just a fixed 80
 - [x] Clean rounded **bounding boxes** with category colours
 - [x] **Confidence lock** — a box only shows once the model is sure, then the
   percentage stays steady (tracking + box smoothing)

@@ -8,6 +8,7 @@ PySide6-Essentials>=6.7
 # Webcam capture
 opencv-python>=4.9
 
-# Object detection — YOLO11 (pulls in torch/torchvision), runs on the Apple GPU
-# (MPS) when available. Model auto-downloads on first run.
+# Open-vocabulary object detection — YOLO-World via Ultralytics (pulls in
+# torch/torchvision), runs on the Apple GPU (MPS) when available. The model and
+# its small text helper (`clip`) auto-download on first run.
 ultralytics>=8.3.0

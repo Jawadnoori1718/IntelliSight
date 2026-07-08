@@ -6,8 +6,8 @@ above a confidence threshold ("confirmed"). At that moment its confidence is
 """
 
 IOU_MATCH = 0.4       # overlap needed to consider two boxes the same object
-MIN_CONF = 0.55       # peak confidence needed before we trust an object
-CONFIRM_HITS = 4      # consecutive frames before an object is confirmed
+MIN_CONF = 0.35       # peak confidence needed before we trust an object
+CONFIRM_HITS = 3      # consecutive frames before an object is confirmed
 MAX_MISSES = 8        # frames an object may disappear before we drop it
 SMOOTH = 0.6          # box smoothing (higher = steadier)
 
