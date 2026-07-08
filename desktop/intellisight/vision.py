@@ -8,33 +8,108 @@ you want IntelliSight to look for. Returns normalised bounding boxes (0..1).
 DEFAULT_MODEL = "yolov8x-worldv2.pt"  # open-vocabulary; auto-downloaded (~140 MB)
 DEFAULT_CONF = 0.10                   # low floor; the Tracker confirms the sure ones
 
-# ── The things IntelliSight looks for. Add your own words here! ──
+# ── The things IntelliSight looks for. ──
+# A broad list of everyday objects. Add or remove words freely.
+# Note: a bigger list covers more, but if you see two similar things get mixed up
+# (e.g. pen vs pencil), a shorter, more specific list is more accurate.
 VOCABULARY = [
-    "person",
-    "pen", "pencil", "marker", "highlighter", "eraser", "ruler", "scissors", "stapler",
-    "key", "wallet", "glasses", "sunglasses", "watch", "ring",
-    "headphones", "earbuds", "airpods", "phone", "laptop", "tablet",
-    "computer mouse", "keyboard", "monitor", "remote control", "charger", "cable",
-    "power bank", "usb drive", "camera",
-    "cup", "mug", "glass", "bottle", "water bottle", "can", "coffee cup",
-    "fork", "knife", "spoon", "plate", "bowl",
-    "banana", "apple", "orange",
-    "book", "notebook", "paper", "envelope",
-    "sneaker", "shoe", "sandal", "sock", "hat", "cap", "backpack", "bag", "handbag", "umbrella",
-    "chair", "table", "lamp", "clock", "plant", "pillow", "toy", "ball",
-    "toothbrush", "toothpaste", "comb", "razor", "lighter", "battery", "tissue box",
+    # People
+    "person", "face", "hand",
+
+    # Desk & stationery
+    "pen", "pencil", "marker", "highlighter", "crayon", "eraser", "ruler",
+    "scissors", "stapler", "tape", "glue stick", "paper clip", "sticky note",
+    "notebook", "book", "magazine", "folder", "binder", "envelope", "paper",
+    "calculator", "clipboard", "whiteboard", "map",
+
+    # Electronics & tech
+    "phone", "laptop", "tablet", "computer mouse", "keyboard", "monitor",
+    "television", "remote control", "headphones", "earbuds", "airpods", "speaker",
+    "microphone", "webcam", "camera", "charger", "cable", "power bank",
+    "usb drive", "hard drive", "router", "game controller", "printer",
+    "smartwatch", "e-reader", "light bulb",
+
+    # Kitchen & dining
+    "cup", "mug", "glass", "bottle", "water bottle", "can", "thermos", "flask",
+    "fork", "knife", "spoon", "chopsticks", "plate", "bowl", "pot", "pan",
+    "kettle", "teapot", "cutting board", "wine glass", "jar", "jug", "napkin",
+    "straw", "blender", "toaster", "microwave", "coffee maker", "lunch box",
+
+    # Food & drink
+    "banana", "apple", "orange", "lemon", "grapes", "strawberry", "tomato",
+    "carrot", "potato", "bread", "sandwich", "pizza", "burger", "hot dog",
+    "donut", "cake", "cookie", "chocolate", "egg", "cheese", "sushi", "noodles",
+    "ice cream", "candy",
+
+    # Personal & accessories
+    "key", "keychain", "wallet", "purse", "glasses", "sunglasses", "watch",
+    "ring", "necklace", "bracelet", "earrings", "hat", "cap", "scarf", "gloves",
+    "belt", "tie", "umbrella", "backpack", "handbag", "suitcase", "face mask",
+    "credit card", "id card", "passport", "money", "coin",
+
+    # Clothing & footwear
+    "shirt", "t-shirt", "jacket", "coat", "sweater", "hoodie", "jeans", "pants",
+    "shorts", "dress", "skirt", "sock", "shoe", "sneaker", "boot", "sandal",
+    "slipper",
+
+    # Bathroom & grooming
+    "toothbrush", "toothpaste", "comb", "hairbrush", "razor", "soap", "shampoo",
+    "towel", "toilet paper", "deodorant", "perfume", "lotion", "makeup",
+    "lipstick",
+
+    # Health
+    "medicine", "pill bottle", "thermometer", "bandage", "syringe", "stethoscope",
+    "inhaler",
+
+    # Home & furniture
+    "chair", "table", "desk", "sofa", "bed", "pillow", "blanket", "lamp", "clock",
+    "mirror", "picture frame", "vase", "plant", "flower pot", "candle",
+    "trash can", "basket", "box", "cushion", "curtain", "rug", "shelf", "fan",
+    "heater",
+
+    # Tools & hardware
+    "hammer", "screwdriver", "wrench", "pliers", "drill", "saw", "tape measure",
+    "nail", "screw", "flashlight", "utility knife", "toolbox", "paintbrush",
+
+    # Toys & hobbies
+    "toy", "teddy bear", "doll", "lego", "rubik's cube", "dice", "playing cards",
+    "guitar", "piano", "drum", "violin",
+
+    # Sports & outdoor
+    "ball", "basketball", "football", "soccer ball", "tennis ball",
+    "tennis racket", "baseball bat", "skateboard", "bicycle", "helmet",
+    "dumbbell", "yoga mat", "frisbee",
+
+    # Misc
+    "lighter", "battery", "tissue box", "spray bottle", "bucket", "broom",
+    "sponge", "gift box", "balloon", "watering can",
+
+    # Vehicles (through a window)
+    "car", "motorcycle", "bus", "truck",
+
+    # Pets
+    "cat", "dog", "bird",
 ]
 
 _TECH = {
-    "laptop", "computer mouse", "keyboard", "phone", "tablet", "monitor", "tv",
-    "remote control", "headphones", "earbuds", "airpods", "charger", "cable",
-    "power bank", "usb drive", "camera",
+    "laptop", "computer mouse", "keyboard", "phone", "tablet", "monitor",
+    "television", "remote control", "headphones", "earbuds", "airpods", "speaker",
+    "microphone", "webcam", "camera", "charger", "cable", "power bank",
+    "usb drive", "hard drive", "router", "game controller", "printer",
+    "smartwatch", "e-reader", "light bulb",
 }
 _FOOD = {
-    "bottle", "water bottle", "cup", "mug", "glass", "can", "coffee cup", "wine glass",
-    "fork", "knife", "spoon", "plate", "bowl", "banana", "apple", "orange",
+    "cup", "mug", "glass", "bottle", "water bottle", "can", "thermos", "flask",
+    "wine glass", "fork", "knife", "spoon", "chopsticks", "plate", "bowl", "pot",
+    "pan", "kettle", "teapot", "jar", "jug", "banana", "apple", "orange", "lemon",
+    "grapes", "strawberry", "tomato", "carrot", "potato", "bread", "sandwich",
+    "pizza", "burger", "hot dog", "donut", "cake", "cookie", "chocolate", "egg",
+    "cheese", "sushi", "noodles", "ice cream", "candy",
 }
-_FURNITURE = {"chair", "table", "lamp", "plant", "pillow", "bed", "couch", "sofa"}
+_FURNITURE = {
+    "chair", "table", "desk", "sofa", "bed", "lamp", "shelf", "mirror",
+    "picture frame", "vase", "plant", "flower pot", "candle", "curtain", "rug",
+}
 
 
 def _categorize(label: str) -> str:
