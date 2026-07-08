@@ -158,6 +158,17 @@ QPushButton#RulesButton {{
     letter-spacing: 0.5px;
 }}
 QPushButton#RulesButton:hover {{ background-color: rgba(129, 140, 248, 0.18); }}
+QPushButton#TimelineButton {{
+    background-color: rgba(8, 12, 20, 0.62);
+    border: 1px solid rgba(56, 189, 248, 0.42);
+    color: #7dd3fc;
+    border-radius: 14px;
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}}
+QPushButton#TimelineButton:hover {{ background-color: rgba(56, 189, 248, 0.16); }}
 QLabel#Toast {{
     background-color: rgba(99, 102, 241, 0.92);
     color: #ffffff;
@@ -168,8 +179,8 @@ QLabel#Toast {{
     font-weight: 700;
 }}
 
-/* ── Rules dialog ── */
-QDialog#RulesDialog {{ background-color: {BG}; }}
+/* ── Rules + Timeline dialogs ── */
+QDialog#RulesDialog, QDialog#TimelineDialog {{ background-color: {BG}; }}
 QLabel#RulesHeader {{ font-size: 21px; font-weight: 700; color: #ffffff; }}
 QLabel#RulesSub {{ color: {TEXT_DIM}; font-size: 13px; }}
 QLabel#RuleWord {{ color: {TEXT_DIM}; font-size: 13px; font-weight: 700; }}
