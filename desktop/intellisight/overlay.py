@@ -15,6 +15,7 @@ CATEGORY_COLORS = {
     "object": QColor("#94a3b8"),
 }
 _LABEL_TEXT = QColor("#05070e")
+ZONE_COLOR = QColor("#fbbf24")  # amber — the user-drawn counting zone
 
 
 def _color(category: str) -> QColor:
@@ -50,6 +51,53 @@ def draw_detections(image: QImage, detections: list) -> QImage:
         painter.setPen(QPen(color, 2.5))
         painter.drawRoundedRect(rect, 10, 10)
         _draw_label(painter, det, color, width, height)
+
+    painter.end()
+    return image
+
+
+def draw_zone(image: QImage, zone, count: int) -> QImage:
+    """Draw the user's counting zone (normalised rect) with a live count pill."""
+    if not zone:
+        return image
+
+    width = image.width()
+    height = image.height()
+    x1, y1, x2, y2 = zone
+    rect = QRectF(x1 * width, y1 * height, (x2 - x1) * width, (y2 - y1) * height)
+
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+
+    fill = QColor(ZONE_COLOR)
+    fill.setAlpha(20)
+    painter.setBrush(fill)
+    pen = QPen(ZONE_COLOR, 2.5)
+    pen.setStyle(Qt.DashLine)
+    painter.setPen(pen)
+    painter.drawRoundedRect(rect, 12, 12)
+
+    font = QFont("Helvetica Neue")
+    font.setPixelSize(max(13, int(height * 0.026)))
+    font.setBold(True)
+    painter.setFont(font)
+    text = f"{count} inside"
+    metrics = painter.fontMetrics()
+    pad_x, pad_y = 10, 5
+    rect_w = metrics.horizontalAdvance(text) + pad_x * 2
+    rect_h = metrics.height() + pad_y
+
+    label_x = max(0.0, min(rect.x(), width - rect_w))
+    label_y = rect.y() - rect_h - 4
+    if label_y < 0:
+        label_y = rect.y() + 4
+
+    label_rect = QRectF(label_x, label_y, rect_w, rect_h)
+    painter.setPen(Qt.NoPen)
+    painter.setBrush(ZONE_COLOR)
+    painter.drawRoundedRect(label_rect, 7, 7)
+    painter.setPen(_LABEL_TEXT)
+    painter.drawText(label_rect, Qt.AlignCenter, text)
 
     painter.end()
     return image

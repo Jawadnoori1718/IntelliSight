@@ -6,7 +6,7 @@ a centered message. The overlays are children of the stage (not in a layout) so
 they can sit on top of the video; they're repositioned on every resize.
 """
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QFrame,
@@ -21,11 +21,70 @@ from PySide6.QtWidgets import (
 
 from ..brandmark import BrandMark
 from ..camera import CameraWorker
-from ..overlay import draw_detections
+from ..overlay import draw_detections, draw_zone
 from ..vision_worker import VisionWorker
 from .objects_overlay import ObjectsOverlay
 
 MARGIN = 20  # gap between the floating overlays and the video edges
+MIN_ZONE = 0.03  # a drag smaller than this (a click) clears the zone instead
+
+
+def _norm_rect(a, b):
+    x1, x2 = sorted((a[0], b[0]))
+    y1, y2 = sorted((a[1], b[1]))
+    return (x1, y1, x2, y2)
+
+
+class VideoLabel(QLabel):
+    """The video surface — the user drags a rectangular counting zone on it."""
+
+    zone_updated = Signal(object)  # (x1, y1, x2, y2) normalised, or None to clear
+
+    def __init__(self):
+        super().__init__()
+        self._area = None        # displayed-image rect in widget coordinates
+        self._drag_start = None  # normalised start point
+        self._dragging = False
+        self.setCursor(Qt.CrossCursor)
+
+    def set_image_area(self, rect: QRectF) -> None:
+        self._area = rect
+
+    def _to_norm(self, pos):
+        area = self._area
+        if area is None or area.width() <= 0 or area.height() <= 0:
+            return None
+        nx = (pos.x() - area.x()) / area.width()
+        ny = (pos.y() - area.y()) / area.height()
+        return (min(1.0, max(0.0, nx)), min(1.0, max(0.0, ny)))
+
+    def mousePressEvent(self, event) -> None:
+        point = self._to_norm(event.position())
+        if point is None:
+            return
+        self._drag_start = point
+        self._dragging = True
+
+    def mouseMoveEvent(self, event) -> None:
+        if not self._dragging or self._drag_start is None:
+            return
+        point = self._to_norm(event.position())
+        if point is not None:
+            self.zone_updated.emit(_norm_rect(self._drag_start, point))
+
+    def mouseReleaseEvent(self, event) -> None:
+        if not self._dragging:
+            return
+        self._dragging = False
+        point = self._to_norm(event.position())
+        start, self._drag_start = self._drag_start, None
+        if point is None or start is None:
+            return
+        x1, y1, x2, y2 = _norm_rect(start, point)
+        if (x2 - x1) < MIN_ZONE or (y2 - y1) < MIN_ZONE:
+            self.zone_updated.emit(None)  # a click (not a drag) clears the zone
+        else:
+            self.zone_updated.emit((x1, y1, x2, y2))
 
 
 class CameraStage(QFrame):
@@ -41,6 +100,8 @@ class CameraStage(QFrame):
         self.worker = None
         self.vision = None
         self.detections = []
+        self.zone = None        # (x1, y1, x2, y2) normalised, or None
+        self.zone_count = 0
         self._got_frame = False
 
         self.stack = QStackedWidget()
@@ -78,11 +139,12 @@ class CameraStage(QFrame):
         page = QWidget()
         lay = QVBoxLayout(page)
         lay.setContentsMargins(0, 0, 0, 0)
-        self.video_label = QLabel()
+        self.video_label = VideoLabel()
         self.video_label.setObjectName("VideoLabel")
         self.video_label.setAlignment(Qt.AlignCenter)
         self.video_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.video_label.setMinimumSize(1, 1)
+        self.video_label.zone_updated.connect(self._on_zone_updated)
         lay.addWidget(self.video_label)
         return page
 
@@ -132,15 +194,28 @@ class CameraStage(QFrame):
         self.stop_btn.setCursor(Qt.PointingHandCursor)
         self.stop_btn.clicked.connect(self.stop_camera)
 
+        # Zone hint / clear (bottom-center, just above Stop)
+        self.zone_hint = QLabel("⬚  Drag on the video to draw a counting zone", self)
+        self.zone_hint.setObjectName("ZoneHint")
+        self.clear_zone_btn = QPushButton("✕  Clear Zone", self)
+        self.clear_zone_btn.setObjectName("ZoneClear")
+        self.clear_zone_btn.setCursor(Qt.PointingHandCursor)
+        self.clear_zone_btn.clicked.connect(lambda: self._on_zone_updated(None))
+
         self._overlays = [self.brand, self.pill, self.objects, self.stop_btn]
+        self._zone_controls = [self.zone_hint, self.clear_zone_btn]
 
     def _show_overlays(self, visible: bool) -> None:
         for widget in self._overlays:
             widget.setVisible(visible)
         if visible:
-            for widget in self._overlays:
+            self._update_zone_controls()
+            for widget in self._overlays + self._zone_controls:
                 widget.raise_()
             self._position_overlays()
+        else:
+            for widget in self._zone_controls:
+                widget.setVisible(False)
 
     def _position_overlays(self) -> None:
         w, h = self.width(), self.height()
@@ -160,10 +235,44 @@ class CameraStage(QFrame):
         self.stop_btn.adjustSize()
         self.stop_btn.move((w - self.stop_btn.width()) // 2, h - self.stop_btn.height() - MARGIN)
 
+        above_stop = h - self.stop_btn.height() - MARGIN - 10
+        self.zone_hint.adjustSize()
+        self.zone_hint.move((w - self.zone_hint.width()) // 2, above_stop - self.zone_hint.height())
+        self.clear_zone_btn.adjustSize()
+        self.clear_zone_btn.move(
+            (w - self.clear_zone_btn.width()) // 2, above_stop - self.clear_zone_btn.height()
+        )
+
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
         if self.brand.isVisible():
             self._position_overlays()
+
+    # ── counting zone ──
+    def _on_zone_updated(self, zone) -> None:
+        self.zone = zone
+        self._recompute_zone_count()
+        self._update_zone_controls()
+        self._position_overlays()
+
+    def _recompute_zone_count(self) -> None:
+        if not self.zone:
+            self.zone_count = 0
+            return
+        x1, y1, x2, y2 = self.zone
+        count = 0
+        for det in self.detections:
+            box = det["box"]
+            cx = (box["x1"] + box["x2"]) / 2
+            cy = (box["y1"] + box["y2"]) / 2
+            if x1 <= cx <= x2 and y1 <= cy <= y2:
+                count += 1
+        self.zone_count = count
+
+    def _update_zone_controls(self) -> None:
+        live = self.stack.currentIndex() == 1
+        self.zone_hint.setVisible(live and self.zone is None)
+        self.clear_zone_btn.setVisible(live and self.zone is not None)
 
     # ── status pill ──
     def _set_pill(self, state: str, text: str) -> None:
@@ -179,6 +288,8 @@ class CameraStage(QFrame):
             return
         self._got_frame = False
         self.detections = []
+        self.zone = None
+        self.zone_count = 0
         self.objects.set_message("Warming up…")
         self._set_pill("connecting", "● CONNECTING")
         self.status_changed.emit("starting")
@@ -224,10 +335,15 @@ class CameraStage(QFrame):
             self.status_changed.emit("live")
         if self.detections:
             draw_detections(image, self.detections)
+        if self.zone:
+            draw_zone(image, self.zone, self.zone_count)
+
         pixmap = QPixmap.fromImage(image)
-        self.video_label.setPixmap(
-            pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        )
+        scaled = pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        offset_x = (self.video_label.width() - scaled.width()) / 2
+        offset_y = (self.video_label.height() - scaled.height()) / 2
+        self.video_label.set_image_area(QRectF(offset_x, offset_y, scaled.width(), scaled.height()))
+        self.video_label.setPixmap(scaled)
 
     def _on_frame_np(self, frame) -> None:
         if self.vision is not None:
@@ -236,6 +352,7 @@ class CameraStage(QFrame):
     def _on_results(self, detections) -> None:
         self.detections = detections
         self.objects.update(detections)
+        self._recompute_zone_count()
         self._position_overlays()
         self.detections_changed.emit(detections)
 

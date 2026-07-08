@@ -112,6 +112,28 @@ QPushButton#StopFloat {{
     letter-spacing: 0.5px;
 }}
 QPushButton#StopFloat:hover {{ background-color: rgba(248, 113, 113, 0.20); }}
+
+/* ── Counting zone controls (bottom-center) ── */
+QLabel#ZoneHint {{
+    background-color: rgba(8, 12, 20, 0.55);
+    border: 1px solid rgba(251, 191, 36, 0.30);
+    color: {WARN};
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+}}
+QPushButton#ZoneClear {{
+    background-color: rgba(8, 12, 20, 0.62);
+    border: 1px solid rgba(251, 191, 36, 0.42);
+    color: {WARN};
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}}
+QPushButton#ZoneClear:hover {{ background-color: rgba(251, 191, 36, 0.18); }}
 """
 
 
