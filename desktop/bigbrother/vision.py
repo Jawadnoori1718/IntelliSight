@@ -11,92 +11,40 @@ NMS_IOU = 0.55                        # overlap needed to treat two boxes as com
 NMS_AREA_SIM = 0.82                   # ...and they must be near the SAME SIZE to suppress
 
 # ── The things Big Brother looks for. ──
-# A broad list of everyday objects. Add or remove words freely.
-# Note: a bigger list covers more, but if you see two similar things get mixed up
-# (e.g. pen vs pencil), a shorter, more specific list is more accurate.
+# A tight, high-accuracy set of ~40 everyday objects. A SHORTER, more specific
+# list is more accurate: the model has fewer look-alikes to confuse itself with
+# (that's why this replaced the old 250-word list). Add or remove words freely —
+# if two similar things get mixed up (e.g. pen vs pencil), keep only the one you
+# actually use.
 VOCABULARY = [
-    # People
-    "person", "face", "hand",
+    "person",
 
-    # Desk & stationery
-    "pen", "pencil", "marker", "highlighter", "crayon", "eraser", "ruler",
-    "scissors", "stapler", "tape", "glue stick", "paper clip", "sticky note",
-    "notebook", "book", "magazine", "folder", "binder", "envelope", "paper",
-    "calculator", "clipboard", "whiteboard", "map",
+    # Tech
+    "phone", "laptop", "keyboard", "computer mouse", "tv", "remote control", "headphones",
 
-    # Electronics & tech
-    "phone", "laptop", "tablet", "computer mouse", "keyboard", "monitor",
-    "television", "remote control", "headphones", "earbuds", "airpods", "speaker",
-    "microphone", "webcam", "camera", "charger", "cable", "power bank",
-    "usb drive", "hard drive", "router", "game controller", "printer",
-    "smartwatch", "e-reader", "light bulb",
+    # Kitchen & drink
+    "cup", "bottle", "wine glass", "fork", "knife", "spoon", "bowl",
 
-    # Kitchen & dining
-    "cup", "mug", "glass", "bottle", "water bottle", "can", "thermos", "flask",
-    "fork", "knife", "spoon", "chopsticks", "plate", "bowl", "pot", "pan",
-    "kettle", "teapot", "cutting board", "wine glass", "jar", "jug", "napkin",
-    "straw", "blender", "toaster", "microwave", "coffee maker", "lunch box",
-
-    # Food & drink
-    "banana", "apple", "orange", "lemon", "grapes", "strawberry", "tomato",
-    "carrot", "potato", "bread", "sandwich", "pizza", "burger", "hot dog",
-    "donut", "cake", "cookie", "chocolate", "egg", "cheese", "sushi", "noodles",
-    "ice cream", "candy",
+    # Food
+    "banana", "apple", "pizza", "sandwich", "cake",
 
     # Personal & accessories
-    "key", "keychain", "wallet", "purse", "glasses", "sunglasses", "watch",
-    "ring", "necklace", "bracelet", "earrings", "hat", "cap", "scarf", "gloves",
-    "belt", "tie", "umbrella", "backpack", "handbag", "suitcase", "face mask",
-    "credit card", "id card", "passport", "money", "coin",
-
-    # Clothing & footwear
-    "shirt", "t-shirt", "jacket", "coat", "sweater", "hoodie", "jeans", "pants",
-    "shorts", "dress", "skirt", "sock", "shoe", "sneaker", "boot", "sandal",
-    "slipper",
-
-    # Bathroom & grooming
-    "toothbrush", "toothpaste", "comb", "hairbrush", "razor", "soap", "shampoo",
-    "towel", "toilet paper", "deodorant", "perfume", "lotion", "makeup",
-    "lipstick",
-
-    # Health
-    "medicine", "pill bottle", "thermometer", "bandage", "syringe", "stethoscope",
-    "inhaler",
+    "backpack", "handbag", "keys", "wallet", "glasses", "watch", "hat",
 
     # Home & furniture
-    "chair", "table", "desk", "sofa", "bed", "pillow", "blanket", "lamp", "clock",
-    "mirror", "picture frame", "vase", "plant", "flower pot", "candle",
-    "trash can", "basket", "box", "cushion", "curtain", "rug", "shelf", "fan",
-    "heater",
-
-    # Tools & hardware
-    "hammer", "screwdriver", "wrench", "pliers", "drill", "saw", "tape measure",
-    "nail", "screw", "flashlight", "utility knife", "toolbox", "paintbrush",
-
-    # Toys & hobbies
-    "toy", "teddy bear", "doll", "lego", "rubik's cube", "dice", "playing cards",
-    "guitar", "piano", "drum", "violin",
-
-    # Sports & outdoor
-    "ball", "basketball", "football", "soccer ball", "tennis ball",
-    "tennis racket", "baseball bat", "skateboard", "bicycle", "helmet",
-    "dumbbell", "yoga mat", "frisbee",
+    "chair", "couch", "bed", "dining table", "potted plant", "lamp", "clock",
 
     # Misc
-    "lighter", "battery", "tissue box", "spray bottle", "bucket", "broom",
-    "sponge", "gift box", "balloon", "watering can",
+    "book", "scissors", "umbrella", "teddy bear",
 
-    # Vehicles (through a window)
-    "car", "motorcycle", "bus", "truck",
-
-    # Pets
-    "cat", "dog", "bird",
+    # Animals & vehicles
+    "cat", "dog", "car",
 ]
 
 _TECH = {
     "laptop", "computer mouse", "keyboard", "phone", "tablet", "monitor",
-    "television", "remote control", "headphones", "earbuds", "airpods", "speaker",
-    "microphone", "webcam", "camera", "charger", "cable", "power bank",
+    "television", "tv", "remote control", "headphones", "earbuds", "airpods",
+    "speaker", "microphone", "webcam", "camera", "charger", "cable", "power bank",
     "usb drive", "hard drive", "router", "game controller", "printer",
     "smartwatch", "e-reader", "light bulb",
 }
@@ -109,8 +57,9 @@ _FOOD = {
     "cheese", "sushi", "noodles", "ice cream", "candy",
 }
 _FURNITURE = {
-    "chair", "table", "desk", "sofa", "bed", "lamp", "shelf", "mirror",
-    "picture frame", "vase", "plant", "flower pot", "candle", "curtain", "rug",
+    "chair", "table", "dining table", "desk", "sofa", "couch", "bed", "lamp",
+    "shelf", "mirror", "picture frame", "vase", "plant", "potted plant",
+    "flower pot", "candle", "curtain", "rug",
 }
 
 

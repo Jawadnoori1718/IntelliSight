@@ -11,7 +11,7 @@ This wraps your existing setup in a `BigBrother.app` bundle (with the eye icon).
 It's tiny and builds in seconds because it reuses your `.venv`.
 
 ```bash
-cd ~/Desktop/IntelliSight/desktop
+cd ~/Desktop/BigBrother/desktop
 ./scripts/make_app.sh
 ```
 
@@ -26,7 +26,7 @@ is from an unidentified developer."* → **right-click → Open → Open**, once
 it'll ask for **camera permission** the first time — click **Allow**.
 
 > ⚠️ The app remembers where this folder is. If you **move or rename** the
-> `IntelliSight` folder, just run `./scripts/make_app.sh` again to rebuild it.
+> `Big Brother` folder, just run `./scripts/make_app.sh` again to rebuild it.
 
 ---
 
@@ -36,12 +36,12 @@ The app above still needs your `.venv` on this Mac. To make a self-contained app
 that runs on a Mac **without** Python installed, freeze it with **PyInstaller**:
 
 ```bash
-cd ~/Desktop/IntelliSight/desktop
+cd ~/Desktop/BigBrother/desktop
 .venv/bin/pip install pyinstaller
 .venv/bin/pyinstaller --windowed --name "Big Brother" \
   --icon build/BigBrother.icns \
   --collect-all ultralytics --collect-all torch --collect-all cv2 \
-  -m intellisight.app
+  -m bigbrother.app
 ```
 
 The finished app lands in `dist/Big Brother.app`.

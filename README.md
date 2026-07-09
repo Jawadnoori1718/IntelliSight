@@ -1,117 +1,76 @@
-# 👁️ IntelliSight
+# 👁️ Big Brother
 
-### An AI-powered real-time visual intelligence assistant that understands the world through your camera.
+### Always watching. A native Mac app that turns your webcam into a programmable eye.
 
-IntelliSight doesn't just **detect** objects — it **analyses, understands, explains, remembers, and interacts** with your surroundings in real time.
-
----
-
-## ✨ What makes it different
-
-A normal object detector shows you this:
-
-```
-Person
-Laptop
-Bottle
-Chair
-```
-
-**IntelliSight** shows you this:
-
-```
-Person          → Software Developer
-Laptop          → MacBook Pro 14"
-Bottle          → Coffee Mug (ceramic, ~350ml)
-...
-
-CURRENT SCENE
-A person is working at a desk.
-Detected Objects: 9   ·   Activity: Working   ·   Environment: Office
-Lighting: Bright      ·   Desk Status: Organised   ·   Confidence: 97%
-```
-
-It should make people say *"That's an AI that understands what it's seeing"* — not *"that's an object detector."*
+Big Brother watches a space in real time, understands what's happening, and **acts on it** —
+so your camera stops being a passive feed and starts *doing things*.
 
 ---
 
-## 🚀 Core Features
+## ✨ What it does
 
-| # | Feature | Description |
-|---|---------|-------------|
-| 1 | **Live Object Detection** | Animated boxes, clean labels, confidence + category colours |
-| 2 | **OCR** | Reads any text — books, screens, whiteboards, signs, labels |
-| 3 | **AI Explanations** | Context for every object, not just a label |
-| 4 | **Ask Questions** | "What's on my desk?", "How many bottles?", "Read that sign." |
-| 5 | **Scene Understanding** | A human-like description of the whole scene |
-| 6 | **Memory Mode** | "Where did I leave my phone?" → last seen location + time |
-| 7 | **Smart Search** | Search your visual history |
-| 8 | **Smart OCR** | Read → summarise → translate → answer questions |
-| 9 | **Object Relationships** | Understands space: "phone is right of the laptop" |
-| 10 | **Live Statistics** | FPS, objects, people, confidence, latency |
-| 11 | **AI Knowledge Cards** | Click any object for a rich info panel |
-| 12 | **Voice Assistant** | Talk naturally, it answers |
-| 13 | **Visual Timeline** | Every detection, searchable + jump-to-frame |
-| 14 | **AI Insights** | Observations with confidence, not just certainties |
+Point it at a room and it detects and names what it sees (open-vocabulary, so it finds the
+things *you* care about — not a fixed list). Then you give it **rules**:
 
----
+> **When** the camera sees a `person` **in** `[a zone you draw]` → **notify my phone**
+> **When** a `package` **appears** **· only if** *Claude confirms it's a delivery* → **save a snapshot**
 
-## 🎨 The Interface
+- 👁️ **Real-time detection** (YOLO-World) on the Apple GPU, with locked, flicker-free labels
+- ▭ **Zones & counting** — draw a region, live-count what's inside
+- 🔔 **Events** — appeared / left / lingering, in a live activity feed
+- 🧠 **Rules engine** — *"when the camera sees X, do Y"* (alert, sound, snapshot, notify, webhook)
+- 📱 **Notifications** — native macOS + your phone (via free [ntfy](https://ntfy.sh))
+- 🕓 **Timeline** — a searchable 30-day memory of everything it saw
+- 🔌 **Webhooks** — feed Home Assistant / Slack / MQTT / your own scripts
+- 🤖 **Claude verification** *(optional)* — gate a rule behind a plain-English condition that
+  Claude confirms on the live frame, for judgment the detector alone can't make
 
-Closer to a **futuristic operating system** than a school project:
-
-- 🌑 Dark theme
-- 🧊 Glassmorphism
-- 💙 Neon blue accents
-- 🎞️ Smooth animations
-- ▭ Rounded panels
-- 🧘 Minimalist design
+Detection runs **fully offline and free**. Claude is optional and only used if you add a key.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Run it
 
-| Layer | Technology |
-|-------|-----------|
-| **Desktop app** *(current)* | PySide6 / Qt — native window with QPainter segmentation overlays |
-| **Frontend** *(web v1)* | React + Vite (dark glassmorphism UI) |
-| **Backend** | Python + FastAPI |
-| **Object Detection** | Ultralytics YOLO |
-| **OCR** | EasyOCR |
-| **AI Brain** | Claude (multimodal) for understanding, explanations & Q&A |
-| **Realtime** | WebSockets (low-latency detection stream) |
+Requires **Python 3.12**.
 
----
-
-## 🏗️ Architecture (at a glance)
-
-```
-  Browser (React)                    FastAPI Backend
-  ┌────────────────────┐             ┌──────────────────────────┐
-  │  Webcam capture     │  frames    │  YOLO   → objects         │
-  │  Canvas overlays    │ ─────────► │  EasyOCR → text           │
-  │  Glassmorphism UI   │ ◄───────── │  Claude  → understanding  │
-  │  Voice in / out     │  results   │  Memory  → timeline/search │
-  └────────────────────┘  (WebSocket)└──────────────────────────┘
-```
-
----
-
-## 📦 Project Status
-
-IntelliSight is a **native Mac app** (PySide6) that does one thing well: a **focused,
-accurate, real-time object detector**. Point your camera at anything and it cleanly
-boxes and names what it's sure about — clean rounded boxes, **locked** confidence
-(no flicker), and a live list of what's in view. Fully **offline & free** (no API key).
-
-**Run it** *(requires Python 3.12)*:
 ```bash
 cd desktop
 python3.12 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ./run.sh
 ```
-See **[desktop/README.md](desktop/README.md)** and the **[roadmap](docs/ROADMAP.md)**.
+
+Or make it a **double-clickable Mac app**:
+
+```bash
+cd desktop
+./scripts/make_app.sh      # builds BigBrother.app with the lens icon
+```
+
+See **[desktop/README.md](desktop/README.md)** to run it and **[desktop/PACKAGING.md](desktop/PACKAGING.md)** to package it.
+
+---
+
+## 🛠️ How it works
+
+```
+  Webcam ──► YOLO-World detector ──► tracker (locks confidence, smooths boxes)
+                                         │
+                     events (appear/leave/linger) + zones/counts
+                                         │
+                                    Rules engine
+                          ┌──────────────┼───────────────┐
+                     local trigger   Claude verify    actions:
+                     (free, instant)  (optional,      alert · sound · snapshot
+                                       on the frame)   notify · webhook
+                                         │
+                              SQLite timeline (searchable memory)
+```
+
+- **Desktop app:** PySide6 / Qt (camera-first UI, QPainter overlays)
+- **Detection:** Ultralytics **YOLO-World** (open-vocabulary), Apple **MPS** accelerated
+- **Smart layer:** **Claude** vision (multimodal) — optional, rate-limited
+- **Memory:** local **SQLite**
 
 ---
 

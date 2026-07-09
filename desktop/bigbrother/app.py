@@ -1,7 +1,7 @@
 """Big Brother Desktop — application entry point.
 
 Run it with:
-    python -m intellisight.app
+    python -m bigbrother.app
 or:
     ./run.sh
 """

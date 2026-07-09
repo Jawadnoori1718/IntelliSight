@@ -12,4 +12,4 @@ if [ ! -d ".venv" ]; then
   exit 1
 fi
 
-exec .venv/bin/python -m intellisight.app
+exec .venv/bin/python -m bigbrother.app

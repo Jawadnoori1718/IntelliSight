@@ -7,14 +7,14 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(HERE))  # the desktop/ folder, so `intellisight` imports
+sys.path.insert(0, os.path.dirname(HERE))  # the desktop/ folder, so `bigbrother` imports
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtWidgets import QApplication
 
-from intellisight.brandmark import paint_mark
+from bigbrother.brandmark import paint_mark
 
 SPECS = [
     (16, "16x16"), (32, "16x16@2x"),

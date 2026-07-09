@@ -29,7 +29,7 @@ brew install python@3.12   # once, if you don't have it
 ## 🚀 Quick start
 
 ```bash
-cd ~/Desktop/IntelliSight/desktop
+cd ~/Desktop/BigBrother/desktop
 python3.12 -m venv .venv
 .venv/bin/pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
@@ -44,7 +44,7 @@ about, listing them in the floating card.
 
 ### ✏️ Add your own objects
 
-Open **`intellisight/vision.py`** and edit the **`VOCABULARY`** list — add any word
+Open **`bigbrother/vision.py`** and edit the **`VOCABULARY`** list — add any word
 (e.g. `"stethoscope"`, `"rubik's cube"`, `"guitar"`) and it'll start looking for it.
 No retraining needed.
 
@@ -56,7 +56,7 @@ No retraining needed.
 desktop/
 ├── requirements.txt
 ├── run.sh
-└── intellisight/
+└── bigbrother/
     ├── app.py            # entry point
     ├── main_window.py    # full-bleed camera window
     ├── brandmark.py      # the all-seeing-eye logo (vector)

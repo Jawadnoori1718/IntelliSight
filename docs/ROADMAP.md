@@ -1,13 +1,13 @@
-# 🗺️ IntelliSight — Build Roadmap
+# 🗺️ Big Brother — Build Roadmap
 
-IntelliSight is built in **20 small phases**. After each phase you get something that
+Big Brother is built in **20 small phases**. After each phase you get something that
 **works and looks good**, then you push it to GitHub before we continue.
 
 **How to read this:** `[x]` = done, `[ ]` = upcoming. We tick a box at the end of each phase.
 
 ---
 
-## 🖥️ IntelliSight Desktop — a focused, accurate object detector
+## 🖥️ Big Brother Desktop — a focused, accurate object detector
 
 A **native Mac app** (PySide6) that does one thing well: point the camera at
 anything and it cleanly boxes and names what it's sure about.

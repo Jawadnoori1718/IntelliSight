@@ -52,7 +52,7 @@ PLIST
 cat > "$APP/Contents/MacOS/BigBrother" <<LAUNCH
 #!/usr/bin/env bash
 cd "$HERE"
-exec "$VENV/bin/python" -m intellisight.app
+exec "$VENV/bin/python" -m bigbrother.app
 LAUNCH
 chmod +x "$APP/Contents/MacOS/BigBrother"
 
