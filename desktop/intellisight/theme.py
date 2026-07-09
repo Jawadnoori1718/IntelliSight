@@ -111,18 +111,33 @@ QLabel#EventText {{ color: {TEXT}; font-size: 12.5px; font-weight: 500; }}
 QLabel#EventTime {{ color: {TEXT_FAINT}; font-size: 10px; font-family: "Menlo", "SF Mono", monospace; }}
 QLabel#EventEmpty {{ color: {TEXT_FAINT}; font-size: 12px; }}
 
-/* ── Floating stop button (bottom-center) ── */
-QPushButton#StopFloat {{
-    background-color: rgba(8, 12, 20, 0.62);
-    border: 1px solid rgba(248, 113, 113, 0.42);
+/* ── Floating control bar (bottom-center): Rules · Timeline · Stop ── */
+QFrame#ControlBar {{
+    background-color: rgba(8, 12, 20, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 16px;
+}}
+QFrame#BarSep {{ background-color: rgba(255, 255, 255, 0.09); }}
+QPushButton#BarBtn {{
+    background: transparent;
+    border: none;
+    color: #dbe4f5;
+    border-radius: 11px;
+    padding: 9px 17px;
+    font-size: 13px;
+    font-weight: 600;
+}}
+QPushButton#BarBtn:hover {{ background-color: rgba(255, 255, 255, 0.08); color: #ffffff; }}
+QPushButton#BarStop {{
+    background: transparent;
+    border: none;
     color: {DANGER};
-    border-radius: 14px;
-    padding: 11px 26px;
+    border-radius: 11px;
+    padding: 9px 17px;
     font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.5px;
 }}
-QPushButton#StopFloat:hover {{ background-color: rgba(248, 113, 113, 0.20); }}
+QPushButton#BarStop:hover {{ background-color: rgba(248, 113, 113, 0.16); }}
 
 /* ── Counting zone controls (bottom-center) ── */
 QLabel#ZoneHint {{

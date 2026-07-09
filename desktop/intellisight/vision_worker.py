@@ -52,6 +52,9 @@ class VisionWorker(QThread):
             except Exception:
                 self.msleep(5)
 
-    def stop(self) -> None:
+    def stop(self, wait_ms=500) -> bool:
+        """Ask the loop to finish. Returns True if it's still running (e.g. still
+        downloading/loading the model) so the caller can drain it, not destroy it."""
         self._running = False
-        self.wait(5000)
+        self.wait(wait_ms)
+        return self.isRunning()

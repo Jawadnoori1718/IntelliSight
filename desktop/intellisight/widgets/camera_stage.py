@@ -216,23 +216,33 @@ class CameraStage(QFrame):
         # Detected-objects card (top-right, under the pill)
         self.objects = ObjectsOverlay(self)
 
-        # Rules button (bottom-left)
-        self.rules_btn = QPushButton("⚙  Rules", self)
-        self.rules_btn.setObjectName("RulesButton")
+        # One clean control bar (bottom-center): Rules · Timeline · Stop
+        self.control_bar = QFrame(self)
+        self.control_bar.setObjectName("ControlBar")
+        bar = QHBoxLayout(self.control_bar)
+        bar.setContentsMargins(7, 6, 7, 6)
+        bar.setSpacing(2)
+
+        self.rules_btn = QPushButton("⚙  Rules")
+        self.rules_btn.setObjectName("BarBtn")
         self.rules_btn.setCursor(Qt.PointingHandCursor)
         self.rules_btn.clicked.connect(self._open_rules)
 
-        # Timeline button (bottom-right)
-        self.timeline_btn = QPushButton("🕓  Timeline", self)
-        self.timeline_btn.setObjectName("TimelineButton")
+        self.timeline_btn = QPushButton("🕓  Timeline")
+        self.timeline_btn.setObjectName("BarBtn")
         self.timeline_btn.setCursor(Qt.PointingHandCursor)
         self.timeline_btn.clicked.connect(self._open_timeline)
 
-        # Stop button (bottom-center)
-        self.stop_btn = QPushButton("■  Stop", self)
-        self.stop_btn.setObjectName("StopFloat")
+        self.stop_btn = QPushButton("◼  Stop")
+        self.stop_btn.setObjectName("BarStop")
         self.stop_btn.setCursor(Qt.PointingHandCursor)
         self.stop_btn.clicked.connect(self.stop_camera)
+
+        bar.addWidget(self.rules_btn)
+        bar.addWidget(self._bar_sep())
+        bar.addWidget(self.timeline_btn)
+        bar.addWidget(self._bar_sep())
+        bar.addWidget(self.stop_btn)
 
         # Toast banner (top-center, shown briefly when a rule fires)
         self.toast = QLabel("", self)
@@ -252,11 +262,17 @@ class CameraStage(QFrame):
         self.clear_zone_btn.clicked.connect(lambda: self._on_zone_updated(None))
 
         self._overlays = [
-            self.brand, self.event_feed, self.pill, self.objects,
-            self.rules_btn, self.timeline_btn, self.stop_btn,
+            self.brand, self.event_feed, self.pill, self.objects, self.control_bar,
         ]
         self._zone_controls = [self.zone_hint, self.clear_zone_btn]
         self._update_rules_button()
+
+    @staticmethod
+    def _bar_sep() -> QFrame:
+        sep = QFrame()
+        sep.setObjectName("BarSep")
+        sep.setFixedWidth(1)
+        return sep
 
     def _show_overlays(self, visible: bool) -> None:
         for widget in self._overlays:
@@ -289,23 +305,16 @@ class CameraStage(QFrame):
             MARGIN + self.pill.height() + 12,
         )
 
-        self.stop_btn.adjustSize()
-        self.stop_btn.move((w - self.stop_btn.width()) // 2, h - self.stop_btn.height() - MARGIN)
+        self.control_bar.adjustSize()
+        bar_y = h - self.control_bar.height() - MARGIN
+        self.control_bar.move((w - self.control_bar.width()) // 2, bar_y)
 
-        self.rules_btn.adjustSize()
-        self.rules_btn.move(MARGIN, h - self.rules_btn.height() - MARGIN)
-
-        self.timeline_btn.adjustSize()
-        self.timeline_btn.move(
-            w - self.timeline_btn.width() - MARGIN, h - self.timeline_btn.height() - MARGIN
-        )
-
-        above_stop = h - self.stop_btn.height() - MARGIN - 10
+        above_bar = bar_y - 12
         self.zone_hint.adjustSize()
-        self.zone_hint.move((w - self.zone_hint.width()) // 2, above_stop - self.zone_hint.height())
+        self.zone_hint.move((w - self.zone_hint.width()) // 2, above_bar - self.zone_hint.height())
         self.clear_zone_btn.adjustSize()
         self.clear_zone_btn.move(
-            (w - self.clear_zone_btn.width()) // 2, above_stop - self.clear_zone_btn.height()
+            (w - self.clear_zone_btn.width()) // 2, above_bar - self.clear_zone_btn.height()
         )
 
     def resizeEvent(self, event) -> None:
@@ -362,7 +371,6 @@ class CameraStage(QFrame):
     def _update_rules_button(self) -> None:
         count = len(self.rules_engine.rules)
         self.rules_btn.setText(f"⚙  Rules  ·  {count}" if count else "⚙  Rules")
-        self.rules_btn.adjustSize()
         if self.brand.isVisible():
             self._position_overlays()
 
@@ -498,9 +506,11 @@ class CameraStage(QFrame):
 
     def shutdown(self) -> None:
         self._stop_workers()
+        # Wait (bounded) for any still-finishing workers so the process exits clean.
+        # Ones that finish in time remove themselves via _forget_draining; anything
+        # still running stays referenced (never force-freed while alive).
         for worker in list(self._draining):
-            worker.wait(9000)
-        self._draining.clear()
+            worker.wait(4000)
         self.timeline.close()
 
     def _forget_draining(self, worker) -> None:
@@ -508,21 +518,23 @@ class CameraStage(QFrame):
             self._draining.remove(worker)
 
     def _stop_workers(self) -> None:
-        if self.worker is not None:
-            self.worker.stop()
-            self.worker = None
-        if self.vision is not None:
-            self.vision.stop()
-            self.vision = None
-        if self.claude_worker is not None:
-            worker = self.claude_worker
-            self.claude_worker = None
-            if worker.stop(1500):
-                # A verification call is still in flight — never destroy a running
-                # QThread; let it finish in the background and clean itself up.
-                self._draining.append(worker)
-                worker.finished.connect(worker.deleteLater)
-                worker.finished.connect(lambda w=worker: self._forget_draining(w))
+        worker, self.worker = self.worker, None
+        self._retire_worker(worker)
+        vision, self.vision = self.vision, None
+        self._retire_worker(vision)
+        claude, self.claude_worker = self.claude_worker, None
+        self._retire_worker(claude)
+
+    def _retire_worker(self, worker) -> None:
+        """Stop a worker; if it's still running (blocked in a model download, a
+        camera open, or an in-flight Claude call) keep it referenced and let it
+        finish in the background — never destroy a live QThread."""
+        if worker is None:
+            return
+        if worker.stop(500):
+            self._draining.append(worker)
+            worker.finished.connect(worker.deleteLater)
+            worker.finished.connect(lambda w=worker: self._forget_draining(w))
 
     # ── slots ──
     def _on_frame(self, image) -> None:

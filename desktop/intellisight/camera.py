@@ -52,6 +52,9 @@ class CameraWorker(QThread):
 
         cap.release()
 
-    def stop(self) -> None:
+    def stop(self, wait_ms=500) -> bool:
+        """Ask the loop to finish. Returns True if it's still running (e.g. still
+        blocked opening the camera) so the caller can drain it, not destroy it."""
         self._running = False
-        self.wait(2000)
+        self.wait(wait_ms)
+        return self.isRunning()

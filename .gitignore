@@ -40,6 +40,11 @@ logs/
 data/memory/*.db
 data/snapshots/
 
+# ── Generated Mac app bundle (build it locally with scripts/make_app.sh) ──
+BigBrother.app/
+*.icns
+*.iconset/
+
 # ── macOS ──
 .DS_Store
 .AppleDouble
