@@ -39,10 +39,11 @@ ACTIONS = [
 class RulesDialog(QDialog):
     changed = Signal()
 
-    def __init__(self, engine, labels, notifier, parent=None):
+    def __init__(self, engine, labels, notifier, claude, parent=None):
         super().__init__(parent)
         self.engine = engine
         self.notifier = notifier
+        self.claude = claude
         self.setObjectName("RulesDialog")
         self.setWindowTitle("Rules")
         self.setModal(True)
@@ -135,6 +136,18 @@ class RulesDialog(QDialog):
         for widget in self._url_widgets:
             widget.hide()
 
+        check_row = QHBoxLayout()
+        check_row.setSpacing(8)
+        check_word = QLabel("Only if")
+        check_word.setObjectName("RuleWord")
+        self.check_edit = QLineEdit()
+        self.check_edit.setPlaceholderText(
+            "(optional) Claude confirms this on the live frame — e.g. the person is holding a package"
+        )
+        check_row.addWidget(check_word)
+        check_row.addWidget(self.check_edit, 1)
+        builder.addLayout(check_row)
+
         root.addLayout(builder)
 
         # Notifications settings
@@ -170,9 +183,65 @@ class RulesDialog(QDialog):
         help_label.setWordWrap(True)
         root.addWidget(help_label)
 
+        # Claude verification settings
+        claude_title = QLabel("CLAUDE VERIFICATION")
+        claude_title.setObjectName("SettingsTitle")
+        root.addSpacing(4)
+        root.addWidget(claude_title)
+
+        self.claude_status = QLabel()
+        self.claude_status.setObjectName("SettingsHelp")
+        root.addWidget(self.claude_status)
+
+        key_row = QHBoxLayout()
+        key_row.setSpacing(8)
+        key_word = QLabel("Key")
+        key_word.setObjectName("RuleWord")
+        self.key_edit = QLineEdit(self.claude.stored_key())
+        self.key_edit.setEchoMode(QLineEdit.Password)
+        self.key_edit.setPlaceholderText("Anthropic API key (sk-ant-…)")
+        self.key_edit.textChanged.connect(self._on_key_changed)
+        if self.claude.key_from_env():
+            self.key_edit.setDisabled(True)
+            self.key_edit.setPlaceholderText("Using ANTHROPIC_API_KEY from environment")
+        cap_word = QLabel("Max / hr")
+        cap_word.setObjectName("RuleWord")
+        self.cap_spin = QSpinBox()
+        self.cap_spin.setRange(1, 600)
+        self.cap_spin.setValue(self.claude.max_per_hour)
+        self.cap_spin.valueChanged.connect(self.claude.set_max)
+        key_row.addWidget(key_word)
+        key_row.addWidget(self.key_edit, 1)
+        key_row.addWidget(cap_word)
+        key_row.addWidget(self.cap_spin)
+        root.addLayout(key_row)
+
+        claude_help = QLabel(
+            "Give a rule an 'Only if' condition above and Claude confirms it on the live frame "
+            "before acting. Uses your Anthropic key — a few cents per check, capped per hour."
+        )
+        claude_help.setObjectName("SettingsHelp")
+        claude_help.setWordWrap(True)
+        root.addWidget(claude_help)
+        self._update_claude_status()
+
         self.trigger_combo.currentIndexChanged.connect(self._on_trigger_changed)
         self.action_combo.currentIndexChanged.connect(self._on_action_changed)
         self._refresh()
+
+    def _on_key_changed(self, text) -> None:
+        self.claude.set_key(text)
+        self._update_claude_status()
+
+    def _update_claude_status(self) -> None:
+        state = self.claude.status()
+        if state == "ready":
+            suffix = " (environment key)" if self.claude.key_from_env() else ""
+            self.claude_status.setText(f"✓ Ready to verify{suffix}")
+        elif state == "nokey":
+            self.claude_status.setText("Add your Anthropic API key below to enable Claude checks.")
+        else:
+            self.claude_status.setText("The 'anthropic' package isn't installed — run: pip install anthropic")
 
     def _test(self) -> None:
         self.notifier.send("Big Brother", "Test notification 🔔")
@@ -203,7 +272,8 @@ class RulesDialog(QDialog):
         if trigger == "count_over":
             obj = None
         url = self.url_edit.text().strip() if action == "webhook" else ""
-        self.engine.add(obj, trigger, action, self.threshold_spin.value(), url)
+        check = self.check_edit.text().strip()
+        self.engine.add(obj, trigger, action, self.threshold_spin.value(), url, check)
         self._refresh()
         self.changed.emit()
 

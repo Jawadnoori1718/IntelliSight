@@ -27,6 +27,8 @@ from PySide6.QtWidgets import (
 
 from ..brandmark import BrandMark
 from ..camera import CameraWorker
+from ..claude_client import ClaudeClient
+from ..claude_worker import ClaudeWorker
 from ..events import EventDetector
 from ..notifications import Notifier
 from ..overlay import draw_detections, draw_zone
@@ -120,6 +122,10 @@ class CameraStage(QFrame):
         self.rules_engine = RulesEngine()
         self.notifier = Notifier()
         self.timeline = Timeline()
+        self.claude = ClaudeClient()
+        self.claude_worker = None
+        self._draining = []  # workers still finishing an in-flight verify after stop
+        self._last_frame = None
         self._last_image = None
         self._got_frame = False
 
@@ -335,7 +341,9 @@ class CameraStage(QFrame):
 
     # ── rules ──
     def _open_rules(self) -> None:
-        dialog = RulesDialog(self.rules_engine, self._known_labels(), self.notifier, self)
+        dialog = RulesDialog(
+            self.rules_engine, self._known_labels(), self.notifier, self.claude, self
+        )
         dialog.setAttribute(Qt.WA_DeleteOnClose)
         dialog.changed.connect(self._update_rules_button)
         dialog.exec()
@@ -358,7 +366,36 @@ class CameraStage(QFrame):
         if self.brand.isVisible():
             self._position_overlays()
 
-    def _fire_rule(self, firing) -> None:
+    def _on_rule_fired(self, firing) -> None:
+        """Gate a fired rule through Claude if it has an 'only if' condition."""
+        rule = firing["rule"]
+        if (rule.check and self.claude.available()
+                and self.claude_worker is not None and self._last_frame is not None):
+            if self.claude.try_reserve(time.monotonic()):
+                self.event_feed.add({"type": "rule", "label": f"🧠 checking: {firing['text']}"})
+                self.claude_worker.submit(firing, self._last_frame.copy(), rule.check)
+                return
+            self.event_feed.add({"type": "rule", "label": "🧠 skipped (hourly limit)"})
+            self.timeline.add("rule", f"{firing['text']} (Claude limit)", None, None)
+            return
+        self._execute_action(firing)
+
+    def _on_verify_done(self, firing, ok, reason) -> None:
+        if self.vision is None:
+            return
+        if ok is True:
+            self._execute_action(firing)
+        elif ok is False:
+            label = f"🧠 not confirmed: {reason}" if reason else "🧠 not confirmed"
+            self.event_feed.add({"type": "rule", "label": label})
+            self.timeline.add("rule", f"{firing['text']} — not confirmed", None, None)
+        else:
+            # Couldn't verify (network/parse error) — fail OPEN so a genuine event
+            # isn't silently missed; flag it as unverified.
+            self.event_feed.add({"type": "rule", "label": "⚠ couldn't verify — acting anyway"})
+            self._execute_action(firing)
+
+    def _execute_action(self, firing) -> None:
         rule = firing["rule"]
         text = firing["text"]
         self.event_feed.add({"type": "rule", "label": f"⚡ {text}"})
@@ -446,8 +483,12 @@ class CameraStage(QFrame):
         self.vision.results_ready.connect(self._on_results)
         self.vision.status.connect(self._on_vision_status)
 
+        self.claude_worker = ClaudeWorker(self.claude)
+        self.claude_worker.verify_done.connect(self._on_verify_done)
+
         self.worker.start()
         self.vision.start()
+        self.claude_worker.start()
 
     def stop_camera(self) -> None:
         self._stop_workers()
@@ -457,7 +498,14 @@ class CameraStage(QFrame):
 
     def shutdown(self) -> None:
         self._stop_workers()
+        for worker in list(self._draining):
+            worker.wait(9000)
+        self._draining.clear()
         self.timeline.close()
+
+    def _forget_draining(self, worker) -> None:
+        if worker in self._draining:
+            self._draining.remove(worker)
 
     def _stop_workers(self) -> None:
         if self.worker is not None:
@@ -466,6 +514,15 @@ class CameraStage(QFrame):
         if self.vision is not None:
             self.vision.stop()
             self.vision = None
+        if self.claude_worker is not None:
+            worker = self.claude_worker
+            self.claude_worker = None
+            if worker.stop(1500):
+                # A verification call is still in flight — never destroy a running
+                # QThread; let it finish in the background and clean itself up.
+                self._draining.append(worker)
+                worker.finished.connect(worker.deleteLater)
+                worker.finished.connect(lambda w=worker: self._forget_draining(w))
 
     # ── slots ──
     def _on_frame(self, image) -> None:
@@ -489,6 +546,7 @@ class CameraStage(QFrame):
         self.video_label.setPixmap(scaled)
 
     def _on_frame_np(self, frame) -> None:
+        self._last_frame = frame
         if self.vision is not None:
             self.vision.submit(frame)
 
@@ -505,7 +563,7 @@ class CameraStage(QFrame):
             self.event_feed.add(event)
             self.timeline.add(event["type"], event["label"], event.get("category"))
         for firing in self.rules_engine.evaluate(events, detections, self.zone, self.zone_count, now):
-            self._fire_rule(firing)
+            self._on_rule_fired(firing)
 
         self._position_overlays()
         self.detections_changed.emit(detections)

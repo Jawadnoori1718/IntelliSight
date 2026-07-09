@@ -33,22 +33,27 @@ _EVENT_TRIGGER = {"appeared": "appears", "disappeared": "disappears", "lingered"
 
 
 class Rule:
-    def __init__(self, rule_id, obj, trigger, action, threshold=2, url="", enabled=True):
+    def __init__(self, rule_id, obj, trigger, action, threshold=2, url="", check="", enabled=True):
         self.id = rule_id
         self.obj = obj            # lowercased label, or None = anything
         self.trigger = trigger
         self.action = action
         self.threshold = threshold
         self.url = url            # webhook target, for the 'webhook' action
+        self.check = check        # optional plain-English condition Claude confirms
         self.enabled = enabled
         self.last_fired = 0.0
 
     def describe(self) -> str:
         action = _ACTION_PHRASE.get(self.action, self.action)
         if self.trigger == "count_over":
-            return f"When ≥ {self.threshold} in the zone → {action}"
-        subject = self.obj.title() if self.obj else "Anything"
-        return f"When {subject} {TRIGGER_PHRASE.get(self.trigger, self.trigger)} → {action}"
+            base = f"When ≥ {self.threshold} in the zone → {action}"
+        else:
+            subject = self.obj.title() if self.obj else "Anything"
+            base = f"When {subject} {TRIGGER_PHRASE.get(self.trigger, self.trigger)} → {action}"
+        if self.check:
+            base += f"   ·  only if: {self.check}"
+        return base
 
     def fired_text(self, label: str) -> str:
         if self.trigger == "count_over":
@@ -63,9 +68,9 @@ class RulesEngine:
         self._prev_in_zone = {}
         self._prev_count = 0
 
-    def add(self, obj, trigger, action, threshold=2, url="") -> Rule:
+    def add(self, obj, trigger, action, threshold=2, url="", check="") -> Rule:
         self._next_id += 1
-        rule = Rule(self._next_id, obj, trigger, action, threshold, url)
+        rule = Rule(self._next_id, obj, trigger, action, threshold, url, check)
         self.rules.append(rule)
         return rule
 

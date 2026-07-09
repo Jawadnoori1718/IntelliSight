@@ -1,6 +1,7 @@
 # Big Brother Desktop — dependencies
 #
-# A focused, offline, real-time object detector. No API keys, no cloud.
+# Detection runs fully offline. Claude verification (the 'Only if' rule
+# condition) is optional and only used if you add an Anthropic API key.
 
 # GUI toolkit (lean; QtCore/QtGui/QtWidgets — no heavy addons)
 PySide6-Essentials>=6.7
@@ -12,3 +13,6 @@ opencv-python>=4.9
 # torch/torchvision), runs on the Apple GPU (MPS) when available. The model and
 # its small text helper (`clip`) auto-download on first run.
 ultralytics>=8.3.0
+
+# Optional — enables Claude vision verification. Everything else works without it.
+anthropic>=0.40

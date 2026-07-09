@@ -13,9 +13,10 @@ lets your space *react* to what happens in it.
   what's in view
 - ⚡ Fully **offline & free** for detection — no API keys, no cloud
 
-> **Roadmap:** Big Brother is growing into a *programmable perception* platform —
-> draw zones, count things, and set rules like *"when the camera sees X, do Y"*,
-> with notifications, a searchable timeline, and smart Claude-powered checks.
+> **A programmable-perception platform:** draw zones and count things, set rules like
+> *"when the camera sees X, do Y"*, get desktop/phone notifications, fire webhooks
+> (Home Assistant / Slack / MQTT), keep a searchable 30-day timeline, and gate any rule
+> behind a plain-English **Claude** condition verified on the live frame.
 
 ---
 
