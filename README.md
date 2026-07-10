@@ -1,4 +1,4 @@
-# 👁️ Big Brother
+# Big Brother
 
 ### Always watching. A native Mac app that turns your webcam into a programmable eye.
 
