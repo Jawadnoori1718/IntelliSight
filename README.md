@@ -22,10 +22,6 @@ things *you* care about — not a fixed list). Then you give it **rules**:
 - 📱 **Notifications** — native macOS + your phone (via free [ntfy](https://ntfy.sh))
 - 🕓 **Timeline** — a searchable 30-day memory of everything it saw
 - 🔌 **Webhooks** — feed Home Assistant / Slack / MQTT / your own scripts
-- 🤖 **Claude verification** *(optional)* — gate a rule behind a plain-English condition that
-  Claude confirms on the live frame, for judgment the detector alone can't make
-
-Detection runs **fully offline and free**. Claude is optional and only used if you add a key.
 
 ---
 
